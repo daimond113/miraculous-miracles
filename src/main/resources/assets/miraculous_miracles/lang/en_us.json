@@ -1,0 +1,23 @@
+{
+  "screen.miraculous_miracles.detransform": "Detransform",
+  "screen.miraculous_miracles.use_ability": "Use Ability",
+  "key.miraculous_miracles.detransform": "Detransform",
+  "key.miraculous_miracles.miraculous_ability": "Miraculous Ability",
+  "effect.miraculous_miracles.transformation_time_left": "Time Left",
+  "text.miraculous_miracles.division": "%s, Divide!",
+  "text.miraculous_miracles.renunciacion": "%s, I renounce you.",
+  "itemGroup.miraculous_miracles.item_group": "Miraculous Miracles",
+
+  "item.miraculous_miracles.bee_miraculous": "Bee Miraculous",
+  "entity.miraculous_miracles.bee_kwami": "Pollen",
+  "text.miraculous_miracles.bee.transformation": "Pollen, Buzz On!",
+  "text.miraculous_miracles.bee.detransformation": "Buzz Off!",
+  "ability.miraculous_miracles.venom": "Venom",
+  "text.miraculous_miracles.venom.shout": "Venom!",
+  "item.miraculous_miracles.bee_venom": "Venom",
+  "item.miraculous_miracles.bee_spinning_top": "Spinning Top",
+  "item.miraculous_miracles.bee_head": "Bee Helmet",
+  "item.miraculous_miracles.bee_chest": "Bee Chestplate",
+  "item.miraculous_miracles.bee_legs": "Bee Leggings",
+  "item.miraculous_miracles.bee_feet": "Bee Boots"
+}
