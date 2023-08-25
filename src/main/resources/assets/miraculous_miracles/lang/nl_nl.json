@@ -1,0 +1,23 @@
+{
+  "screen.miraculous_miracles.detransform": "Detransformeer",
+  "screen.miraculous_miracles.use_ability": "Gebruik Vaardigheid",
+  "key.miraculous_miracles.detransform": "Detransformeer",
+  "key.miraculous_miracles.miraculous_ability": "Miraculous Vaardigheid",
+  "effect.miraculous_miracles.transformation_time_left": "Tijd Over",
+  "text.miraculous_miracles.division": "%s, Scheid!",
+  "text.miraculous_miracles.renunciacion": "%s, Ik vervang jou.",
+  "itemGroup.miraculous_miracles.item_group": "Miraculous Miracles",
+
+  "item.miraculous_miracles.bee_miraculous": "Bijen Miraculous",
+  "entity.miraculous_miracles.bee_kwami": "Pollen",
+  "text.miraculous_miracles.bee.transformation": "Pollen, Zoem Aan!",
+  "text.miraculous_miracles.bee.detransformation": "Zoem Uit!",
+  "ability.miraculous_miracles.venom": "Gif",
+  "text.miraculous_miracles.venom.shout": "Gif!",
+  "item.miraculous_miracles.bee_venom": "Gif",
+  "item.miraculous_miracles.bee_spinning_top": "Draaitol",
+  "item.miraculous_miracles.bee_head": "Bijen helm",
+  "item.miraculous_miracles.bee_chest": "Bee borstplaat",
+  "item.miraculous_miracles.bee_legs": "Bee beenstukken",
+  "item.miraculous_miracles.bee_feet": "Bee laarzen"
+}
