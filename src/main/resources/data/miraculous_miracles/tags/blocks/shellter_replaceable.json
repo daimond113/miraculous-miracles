@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:air",
+    "minecraft:cave_air",
+    "minecraft:grass_block",
+    "minecraft:dirt",
+    "minecraft:stone",
+    "minecraft:deepslate",
+    "minecraft:cobblestone",
+    "minecraft:sand",
+    "minecraft:red_sand"
+  ]
+}

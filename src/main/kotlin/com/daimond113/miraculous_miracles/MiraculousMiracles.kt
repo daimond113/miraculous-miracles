@@ -2,11 +2,11 @@ package com.daimond113.miraculous_miracles
 
 import com.daimond113.miraculous_miracles.core.*
 import com.daimond113.miraculous_miracles.effects.TransformationTimeLeftEffect
-import com.daimond113.miraculous_miracles.items.SpinningTop
-import com.daimond113.miraculous_miracles.items.SpinningTopEntity
-import com.daimond113.miraculous_miracles.items.Venom
+import com.daimond113.miraculous_miracles.items.*
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwami
+import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwami
 import com.daimond113.miraculous_miracles.miraculouses.BeeMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.TurtleMiraculous
 import com.daimond113.miraculous_miracles.states.PlayerState
 import com.daimond113.miraculous_miracles.states.ServerState
 import net.minecraft.entity.EntityDimensions
@@ -14,17 +14,15 @@ import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.SpawnGroup
 import net.minecraft.entity.attribute.DefaultAttributeRegistry
-import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.item.ArmorItem
+import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import org.quiltmc.loader.api.ModContainer
 import org.quiltmc.qkl.library.items.itemGroupOf
 import org.quiltmc.qkl.library.items.itemSettingsOf
-import org.quiltmc.qkl.library.nbt.NbtCompound
 import org.quiltmc.qkl.library.registry.registryScope
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer
 import org.quiltmc.qsl.entity.api.QuiltEntityTypeBuilder
@@ -53,7 +51,7 @@ object MiraculousMiracles : ModInitializer {
     val MIRACULOUSES = run {
         val map = mutableMapOf<MiraculousType, AbstractMiraculous>()
 
-        for (miraculousInstance in arrayOf(BeeMiraculous())) {
+        for (miraculousInstance in arrayOf(BeeMiraculous(), TurtleMiraculous())) {
             map[miraculousInstance.miraculousType] = miraculousInstance
         }
 
@@ -64,6 +62,10 @@ object MiraculousMiracles : ModInitializer {
         Pair(
             MiraculousType.Bee,
             QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::BeeKwami).setDimensions(KWAMI_DIMENSIONS).build()
+        ),
+        Pair(
+            MiraculousType.Turtle,
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::TurtleKwami).setDimensions(KWAMI_DIMENSIONS).build()
         )
     )
 
@@ -84,7 +86,8 @@ object MiraculousMiracles : ModInitializer {
     }
 
     val MIRACULOUS_WEAPONS = mapOf(
-        Pair(MiraculousType.Bee, SpinningTop())
+        Pair(MiraculousType.Bee, SpinningTop()),
+        Pair(MiraculousType.Turtle, Shield())
     )
 
     val BEE_VENOM = Venom()
@@ -97,11 +100,25 @@ object MiraculousMiracles : ModInitializer {
             .trackingTickInterval(10)
             .build()
 
+    val TURTLE_SHELLTER_BLOCK = ShellterBlock()
+    val TURTLE_SHELLTER_ITEM = BlockItem(TURTLE_SHELLTER_BLOCK, itemSettingsOf(group = ITEM_GROUP))
+
+    val TURTLE_SHELLTER_ENTITY: EntityType<ShellterEntity> =
+        QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::ShellterEntity)
+            .setDimensions(
+                EntityDimensions(0.25f, 0.25f, true)
+            )
+            .maxChunkTrackingRange(4)
+            .trackingTickInterval(10)
+            .build()
+
     val TRANSFORMATION_TIME_LEFT_EFFECT = TransformationTimeLeftEffect()
 
     val MIRACULOUS_ITEM_TAGS = MiraculousType.values().associateWith { miraculousType ->
         QuiltTagKey.of(Registry.ITEM.key, Identifier(MOD_ID, miraculousType.toString().lowercase()), TagType.NORMAL)
     }
+
+    val SHELLTER_REPLACEABLE_TAG = QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "shellter_replaceable"), TagType.NORMAL)
 
     override fun onInitialize(mod: ModContainer) {
         val kwamiAttributes = AbstractKwami.createKwamiAttributes().build()
@@ -131,6 +148,10 @@ object MiraculousMiracles : ModInitializer {
             BEE_VENOM withPath "bee_venom" toRegistry Registry.ITEM
             BEE_SPINNING_TOP_ENTITY withPath "bee_spinning_top_entity" toRegistry Registry.ENTITY_TYPE
 
+            TURTLE_SHELLTER_BLOCK withPath "turtle_shellter_block" toRegistry Registry.BLOCK
+            TURTLE_SHELLTER_ITEM withPath "turtle_shellter" toRegistry Registry.ITEM
+            TURTLE_SHELLTER_ENTITY withPath "turtle_shellter_entity" toRegistry Registry.ENTITY_TYPE
+
             TRANSFORMATION_TIME_LEFT_EFFECT withPath "transformation_time_left" toRegistry Registry.STATUS_EFFECT
         }
 
@@ -150,14 +171,12 @@ object MiraculousMiracles : ModInitializer {
 
             if (playerState.activeMiraculous.isEmpty()) return@registerGlobalReceiver
 
-            val chosenMiraculous = if (playerState.activeMiraculous.size <= 1) {
-                playerState.activeMiraculous.first()
-            } else {
+            val chosenMiraculous = run {
                 val miraculousId = packetByteBuf.readInt()
                 val miraculousType = PlayerState.getMiraculousTypeById(miraculousId)
 
-                if (playerState.activeMiraculous.contains(miraculousType)) miraculousType else playerState.activeMiraculous.first()
-            }
+                if (playerState.activeMiraculous.contains(miraculousType)) miraculousType else null
+            } ?: return@registerGlobalReceiver
 
             playerState.detransform(player, setOf(chosenMiraculous))
         }
@@ -165,22 +184,13 @@ object MiraculousMiracles : ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.USE_MIRACULOUS_ABILITY) { _, player, _, packetByteBuf, _ ->
             val playerState = ServerState.getPlayerState(player)
 
-            if (playerState.activeMiraculous.isEmpty()) return@registerGlobalReceiver
-            if (player.hasStatusEffect(TRANSFORMATION_TIME_LEFT_EFFECT)) return@registerGlobalReceiver
-
-            val chosenAbility = if (playerState.activeMiraculous.size <= 1) {
-                val firstMiraculous = playerState.activeMiraculous.first()
-
-                MiraculousAbility.values().firstOrNull { ability ->
-                    ability.miraculousType == firstMiraculous && !playerState.hasUsedAbility(ability)
-                }
-            } else {
+            val chosenAbility = run {
                 val abilityId = packetByteBuf.readInt()
                 val receivedAbility = PlayerState.getAbilityById(abilityId)
 
                 if (playerState.activeMiraculous.contains(receivedAbility.miraculousType) && !playerState.hasUsedAbility(
                         receivedAbility
-                    )
+                    ) && receivedAbility.withKeybind
                 )
                     receivedAbility
                 else
@@ -189,32 +199,7 @@ object MiraculousMiracles : ModInitializer {
 
             if (chosenAbility !is MiraculousAbility) return@registerGlobalReceiver
 
-            if (!playerState.hasUsedAbility(chosenAbility)) {
-                playerState.usedAbilities.add(Pair(chosenAbility, NbtCompound()))
-            }
-
-            val nbtCompound = playerState.usedAbilities.find { (usedAbility) -> usedAbility == chosenAbility }!!.second
-
-            if (!chosenAbility.usableMultipleTimes && playerState.usedAbilities.size >= MiraculousAbility.values()
-                    .filter { ability -> playerState.activeMiraculous.contains(ability.miraculousType) }.size
-            ) {
-                player.addStatusEffect(
-                    StatusEffectInstance(
-                        TRANSFORMATION_TIME_LEFT_EFFECT,
-                        6000,
-                        0,
-                        false,
-                        false,
-                        true
-                    )
-                )
-            }
-
-            val text = Text.translatable("text.miraculous_miracles.$chosenAbility.shout")
-
-            player.world.server!!.playerManager.method_43512(text, { _ -> text }, false)
-
-            chosenAbility.execute(player, nbtCompound)
+            playerState.useAbility(chosenAbility, player, null)
         }
 
         LivingEntityDeathCallback.EVENT.register { entity, _ ->

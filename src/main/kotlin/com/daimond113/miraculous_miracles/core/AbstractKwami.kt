@@ -20,9 +20,14 @@ import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-val kwamiFoods = mapOf(Pair(MiraculousType.Bee) { itemStack: ItemStack ->
-    itemStack.isIn(ItemTags.FLOWERS) || itemStack.item == Items.HONEY_BOTTLE
-})
+val kwamiFoods = mapOf(
+    Pair(MiraculousType.Bee) { itemStack: ItemStack ->
+        itemStack.isIn(ItemTags.FLOWERS) || itemStack.item == Items.HONEY_BOTTLE
+    },
+    Pair(MiraculousType.Turtle) { itemStack: ItemStack ->
+        itemStack.item == Items.SEAGRASS || itemStack.item == Items.KELP
+    }
+)
 
 abstract class AbstractKwami(
     val miraculousType: MiraculousType, entityType: EntityType<out AbstractKwami>, world: World

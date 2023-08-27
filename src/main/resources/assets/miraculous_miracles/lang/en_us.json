@@ -19,5 +19,19 @@
   "item.miraculous_miracles.bee_head": "Bee Helmet",
   "item.miraculous_miracles.bee_chest": "Bee Chestplate",
   "item.miraculous_miracles.bee_legs": "Bee Leggings",
-  "item.miraculous_miracles.bee_feet": "Bee Boots"
+  "item.miraculous_miracles.bee_feet": "Bee Boots",
+
+  "item.miraculous_miracles.turtle_miraculous": "Turtle Miraculous",
+  "entity.miraculous_miracles.turtle_kwami": "Wayzz",
+  "text.miraculous_miracles.turtle.transformation": "Wayzz, Shell On!",
+  "text.miraculous_miracles.turtle.detransformation": "Shell Off!",
+  "ability.miraculous_miracles.shellter": "Shell-ter",
+  "text.miraculous_miracles.shellter.initialize.shout": "Shell-ter!",
+  "text.miraculous_miracles.shellter.deinitialize.shout": "Unshield!",
+  "block.miraculous_miracles.turtle_shellter_block": "Shell-ter",
+  "item.miraculous_miracles.turtle_shield": "Turtle Shield",
+  "item.miraculous_miracles.turtle_head": "Turtle Helmet",
+  "item.miraculous_miracles.turtle_chest": "Turtle Chestplate",
+  "item.miraculous_miracles.turtle_legs": "Turtle Leggings",
+  "item.miraculous_miracles.turtle_feet": "Turtle Boots"
 }

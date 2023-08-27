@@ -55,15 +55,10 @@ class ServerState : PersistentState() {
                         .toMutableSet()
 
                 val usedAbilitiesCompound = playerCompound.getCompound("usedAbilities")
-                val usedAbilities: MutableSet<Pair<MiraculousAbility, NbtCompound>> = mutableSetOf()
+                val usedAbilities: MutableMap<MiraculousAbility, NbtCompound> = mutableMapOf()
 
                 for (abilityKey in usedAbilitiesCompound.keys) {
-                    usedAbilities.add(
-                        Pair(
-                            PlayerState.getAbilityById(abilityKey.toInt()),
-                            usedAbilitiesCompound.getCompound(abilityKey)
-                        )
-                    )
+                    usedAbilities[PlayerState.getAbilityById(abilityKey.toInt())] = usedAbilitiesCompound.getCompound(abilityKey)
                 }
 
                 playerState.usedAbilities = usedAbilities
@@ -72,12 +67,10 @@ class ServerState : PersistentState() {
                 serverState.players[uuid] = playerState
             }
 
-            serverState.markDirty()
-
             return serverState
         }
 
-        private fun getServerState(server: MinecraftServer): ServerState {
+        fun getServerState(server: MinecraftServer): ServerState {
             val persistentStateManager =
                 server.getWorld(World.OVERWORLD)!!.persistentStateManager
             return persistentStateManager.getOrCreate(

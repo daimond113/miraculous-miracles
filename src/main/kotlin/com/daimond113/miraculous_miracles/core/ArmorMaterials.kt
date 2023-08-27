@@ -1,13 +1,16 @@
 package com.daimond113.miraculous_miracles.core
 
+import com.daimond113.miraculous_miracles.MiraculousMiracles
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.item.ArmorMaterial
 import net.minecraft.recipe.Ingredient
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
+import net.minecraft.util.Identifier
 
 enum class ArmorMaterials(val miraculousType: MiraculousType) : ArmorMaterial {
-    Bee(MiraculousType.Bee);
+    Bee(MiraculousType.Bee),
+    Turtle(MiraculousType.Turtle);
 
     private val baseDurability = arrayOf(13, 15, 16, 11);
     private val protectionValues = arrayOf(3, 6, 8, 3);
@@ -42,5 +45,9 @@ enum class ArmorMaterials(val miraculousType: MiraculousType) : ArmorMaterial {
 
     override fun getKnockbackResistance(): Float {
         return 0.15f
+    }
+
+    override fun getTexture(): Identifier {
+        return Identifier(MiraculousMiracles.MOD_ID, "textures/models/armor/${this.getName()}")
     }
 }
