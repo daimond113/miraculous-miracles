@@ -19,5 +19,19 @@
   "item.miraculous_miracles.bee_head": "Bijen helm",
   "item.miraculous_miracles.bee_chest": "Bijen borstplaat",
   "item.miraculous_miracles.bee_legs": "Bijen beenstukken",
-  "item.miraculous_miracles.bee_feet": "Bijen laarzen"
+  "item.miraculous_miracles.bee_feet": "Bijen laarzen",
+
+  "item.miraculous_miracles.turtle_miraculous": "Schildpad Miraculous",
+  "entity.miraculous_miracles.turtle_kwami": "Wayzz",
+  "text.miraculous_miracles.turtle.transformation": "Wayzz, Schild Aan!",
+  "text.miraculous_miracles.turtle.detransformation": "Schild Af!",
+  "ability.miraculous_miracles.shellter": "Schild Vacht",
+  "text.miraculous_miracles.shellter.initialize.shout": "Schild Vacht!",
+  "text.miraculous_miracles.shellter.deinitialize.shout": "Scherm Af!",
+  "block.miraculous_miracles.turtle_shellter_block": "Schild Vacht",
+  "item.miraculous_miracles.turtle_shield": "Schildpad schild",
+  "item.miraculous_miracles.turtle_head": "Schildpad helm",
+  "item.miraculous_miracles.turtle_chest": "Schildpad borstplaat",
+  "item.miraculous_miracles.turtle_legs": "Schildpad beenstukken",
+  "item.miraculous_miracles.turtle_feet": "Schilpad laarzen"
 }
