@@ -6,6 +6,8 @@ import com.daimond113.miraculous_miracles.core.MiraculousType
 import com.daimond113.miraculous_miracles.core.NetworkMessages
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiRenderer
+import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiModel
+import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiRenderer
 import com.daimond113.miraculous_miracles.radial.RadialAction
@@ -28,6 +30,7 @@ import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer
 import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap
 import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents
 import org.quiltmc.qsl.networking.api.PacketByteBufs
+import org.quiltmc.qsl.networking.api.client.ClientPlayConnectionEvents
 import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -39,6 +42,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
 
     val MODEL_BEE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "bee_kwami"), "main")
     val MODEL_TURTLE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "turtle_kwami"), "main")
+    val MODEL_SNAKE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "snake_kwami"), "main")
 
     override fun onInitializeClient(mod: ModContainer) {
         for (miraculous in MiraculousMiracles.MIRACULOUSES.values) {
@@ -79,8 +83,15 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Snake]) { context ->
+            SnakeKwamiRenderer(
+                context
+            )
+        }
+
         EntityModelLayerRegistry.registerModelLayer(MODEL_BEE_KWAMI_LAYER, BeeKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_TURTLE_KWAMI_LAYER, TurtleKwamiModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(MODEL_SNAKE_KWAMI_LAYER, SnakeKwamiModel::getTexturedModelData);
 
 
         val detransformKey = KeyBindingHelper.registerKeyBinding(

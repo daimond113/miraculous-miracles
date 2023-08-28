@@ -14,7 +14,8 @@ enum class MiraculousAbility(
     val id: Int,
     val miraculousType: MiraculousType,
     val execute: (ServerPlayerEntity, NbtCompound, Boolean, Any?) -> Unit,
-    val usableMultipleTimes: Boolean = false,
+    val ignoresMinutes: Boolean = false,
+    val givesMinutesLeft: Boolean = !ignoresMinutes,
     val withKeybind: Boolean = true,
     val isToggleable: Boolean = false
 ) {
@@ -53,5 +54,24 @@ enum class MiraculousAbility(
                 }
             }
         }
-    }, withKeybind = false, isToggleable = true);
+    }, withKeybind = false, isToggleable = true),
+    SecondChance(2, MiraculousType.Snake, { player, nbt, _, _ ->
+        val (x, y, z) = if (nbt.contains("x"))
+            Triple(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"))
+        else run {
+            val blockPos = player.blockPos
+            nbt.putInt("x", blockPos.x)
+            nbt.putInt("y", blockPos.y)
+            nbt.putInt("z", blockPos.z)
+            com.daimond113.miraculous_miracles.states.ServerState.getServerState(player.server).markDirty()
+            Triple(blockPos.x, blockPos.y, blockPos.z)
+        }
+        // TODO: possibly health & food?
+        if (player.hasVehicle()) {
+            player.requestTeleportAndDismount(x.toDouble(), y.toDouble(), z.toDouble())
+        } else {
+            player.requestTeleport(x.toDouble(), y.toDouble(), z.toDouble())
+        }
+        player.onLanding()
+    }, ignoresMinutes = true, givesMinutesLeft = true);
 }

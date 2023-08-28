@@ -33,5 +33,17 @@
   "item.miraculous_miracles.turtle_head": "Turtle Helmet",
   "item.miraculous_miracles.turtle_chest": "Turtle Chestplate",
   "item.miraculous_miracles.turtle_legs": "Turtle Leggings",
-  "item.miraculous_miracles.turtle_feet": "Turtle Boots"
+  "item.miraculous_miracles.turtle_feet": "Turtle Boots",
+
+  "item.miraculous_miracles.snake_miraculous": "Snake Miraculous",
+  "entity.miraculous_miracles.snake_kwami": "Sass",
+  "text.miraculous_miracles.snake.transformation": "Sass, Scales Slither!",
+  "text.miraculous_miracles.snake.detransformation": "Scales Rest!",
+  "ability.miraculous_miracles.secondchance": "Second Chance",
+  "text.miraculous_miracles.secondchance.shout": "Second Chance!",
+  "item.miraculous_miracles.snake_lyre": "Snake Lyre",
+  "item.miraculous_miracles.snake_head": "Snake Helmet",
+  "item.miraculous_miracles.snake_chest": "Snake Chestplate",
+  "item.miraculous_miracles.snake_legs": "Snake Leggings",
+  "item.miraculous_miracles.snake_feet": "Snake Boots"
 }

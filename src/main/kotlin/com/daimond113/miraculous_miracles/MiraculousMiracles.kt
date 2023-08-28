@@ -4,11 +4,14 @@ import com.daimond113.miraculous_miracles.core.*
 import com.daimond113.miraculous_miracles.effects.TransformationTimeLeftEffect
 import com.daimond113.miraculous_miracles.items.*
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwami
+import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwami
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwami
 import com.daimond113.miraculous_miracles.miraculouses.BeeMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.SnakeMiraculous
 import com.daimond113.miraculous_miracles.miraculouses.TurtleMiraculous
 import com.daimond113.miraculous_miracles.states.PlayerState
 import com.daimond113.miraculous_miracles.states.ServerState
+import net.minecraft.block.Block
 import net.minecraft.entity.EntityDimensions
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
@@ -18,6 +21,7 @@ import net.minecraft.item.ArmorItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.tag.TagKey
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import org.quiltmc.loader.api.ModContainer
@@ -51,7 +55,7 @@ object MiraculousMiracles : ModInitializer {
     val MIRACULOUSES = run {
         val map = mutableMapOf<MiraculousType, AbstractMiraculous>()
 
-        for (miraculousInstance in arrayOf(BeeMiraculous(), TurtleMiraculous())) {
+        for (miraculousInstance in arrayOf(BeeMiraculous(), TurtleMiraculous(), SnakeMiraculous())) {
             map[miraculousInstance.miraculousType] = miraculousInstance
         }
 
@@ -66,6 +70,10 @@ object MiraculousMiracles : ModInitializer {
         Pair(
             MiraculousType.Turtle,
             QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::TurtleKwami).setDimensions(KWAMI_DIMENSIONS).build()
+        ),
+        Pair(
+            MiraculousType.Snake,
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::SnakeKwami).setDimensions(KWAMI_DIMENSIONS).build()
         )
     )
 
@@ -87,7 +95,8 @@ object MiraculousMiracles : ModInitializer {
 
     val MIRACULOUS_WEAPONS = mapOf(
         Pair(MiraculousType.Bee, SpinningTop()),
-        Pair(MiraculousType.Turtle, Shield())
+        Pair(MiraculousType.Turtle, Shield()),
+        Pair(MiraculousType.Snake, Lyre())
     )
 
     val BEE_VENOM = Venom()
@@ -118,7 +127,7 @@ object MiraculousMiracles : ModInitializer {
         QuiltTagKey.of(Registry.ITEM.key, Identifier(MOD_ID, miraculousType.toString().lowercase()), TagType.NORMAL)
     }
 
-    val SHELLTER_REPLACEABLE_TAG = QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "shellter_replaceable"), TagType.NORMAL)
+    val SHELLTER_REPLACEABLE_TAG: TagKey<Block> = QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "shellter_replaceable"), TagType.NORMAL)
 
     override fun onInitialize(mod: ModContainer) {
         val kwamiAttributes = AbstractKwami.createKwamiAttributes().build()
@@ -188,10 +197,7 @@ object MiraculousMiracles : ModInitializer {
                 val abilityId = packetByteBuf.readInt()
                 val receivedAbility = PlayerState.getAbilityById(abilityId)
 
-                if (playerState.activeMiraculous.contains(receivedAbility.miraculousType) && !playerState.hasUsedAbility(
-                        receivedAbility
-                    ) && receivedAbility.withKeybind
-                )
+                if (receivedAbility.withKeybind)
                     receivedAbility
                 else
                     null

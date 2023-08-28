@@ -68,7 +68,7 @@ class PlayerState {
     fun useAbility(ability: MiraculousAbility, player: ServerPlayerEntity, additionalParam: Any?) {
         val playerState = ServerState.getPlayerState(player)
 
-        if (playerState.activeMiraculous.isEmpty()) return
+        if (!playerState.activeMiraculous.contains(ability.miraculousType)) return
 
         if (!playerState.hasUsedAbility(ability, true)) {
             playerState.usedAbilities[ability] = NbtCompound().apply {
@@ -90,9 +90,9 @@ class PlayerState {
         else
             false
 
-        if (player.hasStatusEffect(MiraculousMiracles.TRANSFORMATION_TIME_LEFT_EFFECT) && !hasBeenUsed) return
+        if (!ability.ignoresMinutes && player.hasStatusEffect(MiraculousMiracles.TRANSFORMATION_TIME_LEFT_EFFECT) && !hasBeenUsed) return
 
-        if (!ability.usableMultipleTimes && (playerState.usedAbilities.size >= MiraculousAbility.values()
+        if (ability.givesMinutesLeft && (playerState.usedAbilities.size >= MiraculousAbility.values()
                 .filter { playerState.activeMiraculous.contains(it.miraculousType) }.size)
         ) {
             player.addStatusEffect(

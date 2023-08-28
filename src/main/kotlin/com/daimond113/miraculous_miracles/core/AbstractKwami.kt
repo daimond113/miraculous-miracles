@@ -26,6 +26,9 @@ val kwamiFoods = mapOf(
     },
     Pair(MiraculousType.Turtle) { itemStack: ItemStack ->
         itemStack.item == Items.SEAGRASS || itemStack.item == Items.KELP
+    },
+    Pair(MiraculousType.Snake) { itemStack: ItemStack ->
+        (itemStack.item.isFood && itemStack.item.foodComponent!!.isMeat) || itemStack.item == Items.EGG
     }
 )
 
