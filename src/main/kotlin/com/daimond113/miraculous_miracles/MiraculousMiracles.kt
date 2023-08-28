@@ -32,6 +32,7 @@ import org.quiltmc.qsl.base.api.entrypoint.ModInitializer
 import org.quiltmc.qsl.entity.api.QuiltEntityTypeBuilder
 import org.quiltmc.qsl.entity_events.api.LivingEntityDeathCallback
 import org.quiltmc.qsl.networking.api.PacketByteBufs
+import org.quiltmc.qsl.networking.api.ServerPlayConnectionEvents
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking
 import org.quiltmc.qsl.tag.api.QuiltTagKey
 import org.quiltmc.qsl.tag.api.TagType
@@ -164,15 +165,17 @@ object MiraculousMiracles : ModInitializer {
             TRANSFORMATION_TIME_LEFT_EFFECT withPath "transformation_time_left" toRegistry Registry.STATUS_EFFECT
         }
 
-        ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.GET_ACTIVE_MIRACULOUS) { _, player, _, _, _ ->
-            val playerState = ServerState.getPlayerState(player)
+        ServerPlayConnectionEvents.JOIN.register { handler, _, _ ->
+            val playerState = ServerState.getPlayerState(handler.player)
+
+            if (playerState.activeMiraculous.isEmpty()) return@register
 
             val packetByteBuf = PacketByteBufs.create()
 
             packetByteBuf.writeIntArray(playerState.activeMiraculous.map { miraculousType -> miraculousType.id }
                 .toIntArray())
 
-            ServerPlayNetworking.send(player, NetworkMessages.RECEIVE_ACTIVE_MIRACULOUS, packetByteBuf)
+            ServerPlayNetworking.send(handler.player, NetworkMessages.RECEIVE_ACTIVE_MIRACULOUS, packetByteBuf)
         }
 
         ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.DETRANSFORM) { _, player, _, packetByteBuf, _ ->

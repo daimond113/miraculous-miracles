@@ -4,6 +4,7 @@ import com.daimond113.miraculous_miracles.MiraculousMiracles
 import com.daimond113.miraculous_miracles.core.AbstractMiraculous
 import com.daimond113.miraculous_miracles.core.MiraculousAbility
 import com.daimond113.miraculous_miracles.core.MiraculousType
+import com.daimond113.miraculous_miracles.core.NetworkMessages
 import com.daimond113.miraculous_miracles.effects.Reasons
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.item.ItemStack
@@ -12,6 +13,8 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.ItemScatterer
+import org.quiltmc.qsl.networking.api.PacketByteBufs
+import org.quiltmc.qsl.networking.api.ServerPlayNetworking
 import java.util.*
 
 
@@ -54,6 +57,16 @@ class PlayerState {
 
             player.world.server!!.playerManager.method_43512(prefixedMessage, { _ -> prefixedMessage }, false)
         }
+    }
+
+    fun updateActiveMiraculous(player: ServerPlayerEntity) {
+        val packetByteBuf = PacketByteBufs.create()
+
+        packetByteBuf.writeIntArray(activeMiraculous.map { miraculousType -> miraculousType.id }
+            .toIntArray())
+
+        ServerPlayNetworking.send(player, NetworkMessages.RECEIVE_ACTIVE_MIRACULOUS, packetByteBuf)
+        ServerState.getServerState(player.server).markDirty()
     }
 
     fun hasUsedAbility(ability: MiraculousAbility, ignoreToggled: Boolean = false): Boolean {
@@ -174,5 +187,7 @@ class PlayerState {
                 giveItemStack(newMiraculous, player)
             }
         }
+
+        updateActiveMiraculous(player)
     }
 }

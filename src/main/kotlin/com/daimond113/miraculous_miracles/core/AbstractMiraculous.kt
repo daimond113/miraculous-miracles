@@ -149,7 +149,7 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
             // TODO: Unifications
             if (playerState.activeMiraculous.isEmpty()) {
                 playerState.activeMiraculous.add(miraculousType)
-                ServerState.getServerState(user.server).markDirty()
+                playerState.updateActiveMiraculous(user)
 
                 val inventory = user.inventory
 

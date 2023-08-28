@@ -30,11 +30,9 @@ import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer
 import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap
 import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents
 import org.quiltmc.qsl.networking.api.PacketByteBufs
-import org.quiltmc.qsl.networking.api.client.ClientPlayConnectionEvents
 import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
 
 
 object MiraculousMiraclesClient : ClientModInitializer {
@@ -43,6 +41,8 @@ object MiraculousMiraclesClient : ClientModInitializer {
     val MODEL_BEE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "bee_kwami"), "main")
     val MODEL_TURTLE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "turtle_kwami"), "main")
     val MODEL_SNAKE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "snake_kwami"), "main")
+
+    private var activeMiraculous: Set<MiraculousType> = setOf()
 
     override fun onInitializeClient(mod: ModContainer) {
         for (miraculous in MiraculousMiracles.MIRACULOUSES.values) {
@@ -112,34 +112,22 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         )
 
-        var activeMiraculous: Optional<List<MiraculousType>> = Optional.empty()
-        var requested = false
-
         ClientPlayNetworking.registerGlobalReceiver(NetworkMessages.RECEIVE_ACTIVE_MIRACULOUS) { _, _, buf, _ ->
             activeMiraculous =
-                Optional.of(buf.readIntList().map { miraculousId -> PlayerState.getMiraculousTypeById(miraculousId) })
-            requested = false
+                buf.readIntList().map { miraculousId -> PlayerState.getMiraculousTypeById(miraculousId) }.toSet()
         }
 
-        // TODO: change this into state that's synced with the client based on events
         ClientTickEvents.END.register { client ->
             if (!(detransformKey.isPressed || abilityKey.isPressed) || client.currentScreen != null) {
-                activeMiraculous = Optional.empty()
+
                 return@register
             }
 
-            if (!requested && activeMiraculous.isEmpty) {
-                requested = true
-                ClientPlayNetworking.send(NetworkMessages.GET_ACTIVE_MIRACULOUS, PacketByteBufs.empty())
-            }
-
-            if (activeMiraculous.isEmpty || activeMiraculous.get().isEmpty()) return@register
-
-            val miraculous = activeMiraculous.get()
+            if (activeMiraculous.isEmpty()) return@register
 
             if (detransformKey.isPressed) {
-                if (miraculous.size <= 1) {
-                    val firstMiraculous = miraculous.firstOrNull() ?: return@register
+                if (activeMiraculous.size <= 1) {
+                    val firstMiraculous = activeMiraculous.firstOrNull() ?: return@register
 
                     val packetByteBuf = PacketByteBufs.create()
                     packetByteBuf.writeInt(firstMiraculous.id)
@@ -150,7 +138,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
 
                 client.setScreen(
                     RadialScreen(
-                        "screen.miraculous_miracles.detransform", detransformKey, miraculous.map { miraculousType ->
+                        "screen.miraculous_miracles.detransform", detransformKey, activeMiraculous.map { miraculousType ->
                             RadialAction(
                                 "item.miraculous_miracles.${
                                     miraculousType.toString().lowercase()
@@ -166,7 +154,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
                 )
             } else {
                 val possibleAbilities = MiraculousAbility.values()
-                    .filter { ability -> ability.withKeybind && miraculous.contains(ability.miraculousType) }
+                    .filter { ability -> ability.withKeybind && activeMiraculous.contains(ability.miraculousType) }
 
                 if (possibleAbilities.size <= 1) {
                     val firstAbility = possibleAbilities.firstOrNull() ?: return@register
