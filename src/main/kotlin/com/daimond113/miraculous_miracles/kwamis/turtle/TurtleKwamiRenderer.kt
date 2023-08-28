@@ -1,4 +1,4 @@
-package com.daimond113.miraculous_miracles.kwamis.bee
+package com.daimond113.miraculous_miracles.kwamis.turtle
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
 import com.daimond113.miraculous_miracles.MiraculousMiraclesClient
@@ -7,12 +7,12 @@ import net.minecraft.client.render.entity.EntityRendererFactory
 import net.minecraft.client.render.entity.MobEntityRenderer
 import net.minecraft.util.Identifier
 
-class BeeKwamiRenderer(context: EntityRendererFactory.Context) : MobEntityRenderer<AbstractKwami, BeeKwamiModel>(
+class TurtleKwamiRenderer(context: EntityRendererFactory.Context) : MobEntityRenderer<AbstractKwami, TurtleKwamiModel>(
     context,
-    BeeKwamiModel(context.getPart(MiraculousMiraclesClient.MODEL_BEE_KWAMI_LAYER)),
+    TurtleKwamiModel(context.getPart(MiraculousMiraclesClient.MODEL_TURTLE_KWAMI_LAYER)),
     0.5f
 ) {
     override fun getTexture(entity: AbstractKwami): Identifier {
-        return Identifier(MiraculousMiracles.MOD_ID, "textures/entity/bee_kwami/kwami.png")
+        return Identifier(MiraculousMiracles.MOD_ID, "textures/entity/turtle_kwami/kwami.png")
     }
 }

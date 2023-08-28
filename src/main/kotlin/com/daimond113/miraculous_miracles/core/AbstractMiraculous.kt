@@ -15,10 +15,12 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
-import net.minecraft.util.*
+import net.minecraft.util.ActionResult
+import net.minecraft.util.Hand
+import net.minecraft.util.ItemScatterer
+import net.minecraft.util.Rarity
 import org.quiltmc.qkl.library.items.itemSettingsOf
-import java.util.Optional
-import java.util.UUID
+import java.util.*
 
 abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((ItemStack) -> EquipmentSlot)? = null) :
     Item(
@@ -111,14 +113,15 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
     override fun postHit(stack: ItemStack, target: LivingEntity, attacker: LivingEntity): Boolean {
         if (target is AbstractKwami && target.miraculousType == miraculousType && target.uuid == getOptionalKwamiUuid(
                 stack
-            ) && attacker.world.server != null
+            ) && attacker.world.server != null && attacker is ServerPlayerEntity
         ) {
-            val text = Text.translatable(
-                "text.miraculous_miracles.renunciacion",
-                Text.translatable("entity.miraculous_miracles.${miraculousType.toString().lowercase()}_kwami")
+            PlayerState.sendMessageFrom(
+                Text.translatable(
+                    "text.miraculous_miracles.renunciacion",
+                    Text.translatable("entity.miraculous_miracles.${miraculousType.toString().lowercase()}_kwami")
+                ),
+                attacker
             )
-
-            attacker.world.server!!.playerManager.method_43512(text, { _ -> text }, false)
 
             target.remove(Entity.RemovalReason.DISCARDED)
 
@@ -138,14 +141,15 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
             !entity.isHungry &&
             !user.hasStatusEffect(
                 MiraculousMiracles.TRANSFORMATION_TIME_LEFT_EFFECT
-            )
+            ) &&
+            user is ServerPlayerEntity
         ) {
             val playerState = ServerState.getPlayerState(user)
 
             // TODO: Unifications
             if (playerState.activeMiraculous.isEmpty()) {
-                setNBT(stack, Optional.empty())
                 playerState.activeMiraculous.add(miraculousType)
+                ServerState.getServerState(user.server).markDirty()
 
                 val inventory = user.inventory
 
@@ -168,22 +172,24 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
                     inventory.armor[i] = newArmor[i]
                 }
 
-                val weaponStack = ItemStack(MiraculousMiracles.MIRACULOUS_WEAPONS[miraculousType]!!)
-                weaponStack.addEnchantment(Enchantments.VANISHING_CURSE, 1)
-
-                PlayerState.giveItemStack(weaponStack, user as ServerPlayerEntity)
-
-                val text = Text.translatable(
-                    "text.miraculous_miracles.${
-                        miraculousType.toString().lowercase()
-                    }.transformation"
+                PlayerState.sendMessageFrom(
+                    Text.translatable(
+                        "text.miraculous_miracles.${
+                            miraculousType.toString().lowercase()
+                        }.transformation"
+                    ),
+                    user
                 )
-
-                user.world.server!!.playerManager.method_43512(text, { _ -> text }, false)
 
                 entity.remove(Entity.RemovalReason.DISCARDED)
 
-                stack.count = 0
+                val weaponStack = ItemStack(MiraculousMiracles.MIRACULOUS_WEAPONS[miraculousType]!!)
+                weaponStack.addEnchantment(Enchantments.VANISHING_CURSE, 1)
+
+                // in spite of returning CONSUME which should stop bubbling, the item's `use` is still called, so we add a small cooldown
+                user.itemCooldownManager[weaponStack.item] = 15
+
+                PlayerState.replaceItemStack(stack, weaponStack, user)
 
                 return ActionResult.CONSUME
             }

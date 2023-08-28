@@ -6,6 +6,8 @@ import com.daimond113.miraculous_miracles.core.MiraculousType
 import com.daimond113.miraculous_miracles.core.NetworkMessages
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiRenderer
+import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiModel
+import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiRenderer
 import com.daimond113.miraculous_miracles.radial.RadialAction
 import com.daimond113.miraculous_miracles.radial.RadialScreen
 import com.daimond113.miraculous_miracles.states.PlayerState
@@ -15,6 +17,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry
 import net.minecraft.client.item.ModelPredicateProviderRegistry
 import net.minecraft.client.option.KeyBind
+import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.render.entity.EntityRendererFactory
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer
 import net.minecraft.client.render.entity.model.EntityModelLayer
@@ -22,6 +25,7 @@ import net.minecraft.util.Identifier
 import org.lwjgl.glfw.GLFW
 import org.quiltmc.loader.api.ModContainer
 import org.quiltmc.qsl.base.api.entrypoint.client.ClientModInitializer
+import org.quiltmc.qsl.block.extensions.api.client.BlockRenderLayerMap
 import org.quiltmc.qsl.lifecycle.api.client.event.ClientTickEvents
 import org.quiltmc.qsl.networking.api.PacketByteBufs
 import org.quiltmc.qsl.networking.api.client.ClientPlayNetworking
@@ -34,6 +38,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
     val LOGGER: Logger = LoggerFactory.getLogger("${MiraculousMiracles.MOD_NAME} (Client)")
 
     val MODEL_BEE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "bee_kwami"), "main")
+    val MODEL_TURTLE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "turtle_kwami"), "main")
 
     override fun onInitializeClient(mod: ModContainer) {
         for (miraculous in MiraculousMiracles.MIRACULOUSES.values) {
@@ -45,7 +50,8 @@ object MiraculousMiraclesClient : ClientModInitializer {
             }
         }
 
-        val armorItems = MiraculousMiracles.ARMORS.values.flatMap { armors -> armors.asIterable() }.toTypedArray()
+        // TODO: body suit renderer to make players not look bulky
+        // val armorItems = MiraculousMiracles.ARMORS.values.flatMap { armors -> armors.asIterable() }.toTypedArray()
 
         EntityRendererRegistry.register(MiraculousMiracles.BEE_SPINNING_TOP_ENTITY) { context: EntityRendererFactory.Context ->
             FlyingItemEntityRenderer(
@@ -53,13 +59,29 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.TURTLE_SHELLTER_ENTITY) { context: EntityRendererFactory.Context ->
+            FlyingItemEntityRenderer(
+                context
+            )
+        }
+
+        BlockRenderLayerMap.put(RenderLayer.getTranslucent(), MiraculousMiracles.TURTLE_SHELLTER_BLOCK)
+
         EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Bee]) { context ->
             BeeKwamiRenderer(
                 context
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Turtle]) { context ->
+            TurtleKwamiRenderer(
+                context
+            )
+        }
+
         EntityModelLayerRegistry.registerModelLayer(MODEL_BEE_KWAMI_LAYER, BeeKwamiModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(MODEL_TURTLE_KWAMI_LAYER, TurtleKwamiModel::getTexturedModelData);
+
 
         val detransformKey = KeyBindingHelper.registerKeyBinding(
             KeyBind(
@@ -88,6 +110,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
             requested = false
         }
 
+        // TODO: change this into state that's synced with the client based on events
         ClientTickEvents.END.register { client ->
             if (!(detransformKey.isPressed || abilityKey.isPressed) || client.currentScreen != null) {
                 activeMiraculous = Optional.empty()
@@ -105,7 +128,12 @@ object MiraculousMiraclesClient : ClientModInitializer {
 
             if (detransformKey.isPressed) {
                 if (miraculous.size <= 1) {
-                    ClientPlayNetworking.send(NetworkMessages.DETRANSFORM, PacketByteBufs.empty())
+                    val firstMiraculous = miraculous.firstOrNull() ?: return@register
+
+                    val packetByteBuf = PacketByteBufs.create()
+                    packetByteBuf.writeInt(firstMiraculous.id)
+
+                    ClientPlayNetworking.send(NetworkMessages.DETRANSFORM, packetByteBuf)
                     return@register
                 }
 
@@ -126,8 +154,16 @@ object MiraculousMiraclesClient : ClientModInitializer {
                     )
                 )
             } else {
-                if (miraculous.size <= 1) {
-                    ClientPlayNetworking.send(NetworkMessages.USE_MIRACULOUS_ABILITY, PacketByteBufs.empty())
+                val possibleAbilities = MiraculousAbility.values()
+                    .filter { ability -> ability.withKeybind && miraculous.contains(ability.miraculousType) }
+
+                if (possibleAbilities.size <= 1) {
+                    val firstAbility = possibleAbilities.firstOrNull() ?: return@register
+
+                    val packetByteBuf = PacketByteBufs.create()
+                    packetByteBuf.writeInt(firstAbility.id)
+
+                    ClientPlayNetworking.send(NetworkMessages.USE_MIRACULOUS_ABILITY, packetByteBuf)
                     return@register
                 }
 
@@ -135,15 +171,14 @@ object MiraculousMiraclesClient : ClientModInitializer {
                     RadialScreen(
                         "screen.miraculous_miracles.use_ability",
                         abilityKey,
-                        MiraculousAbility.values().filter { ability -> miraculous.contains(ability.miraculousType) }
-                            .map { ability ->
-                                RadialAction("ability.miraculous_miracles.$ability") { ->
-                                    val packetByteBuf = PacketByteBufs.create()
-                                    packetByteBuf.writeInt(ability.id)
+                        possibleAbilities.map { ability ->
+                            RadialAction("ability.miraculous_miracles.${ability.toString().lowercase()}") { ->
+                                val packetByteBuf = PacketByteBufs.create()
+                                packetByteBuf.writeInt(ability.id)
 
-                                    ClientPlayNetworking.send(NetworkMessages.USE_MIRACULOUS_ABILITY, packetByteBuf)
-                                }
+                                ClientPlayNetworking.send(NetworkMessages.USE_MIRACULOUS_ABILITY, packetByteBuf)
                             }
+                        }
                     )
                 )
             }
