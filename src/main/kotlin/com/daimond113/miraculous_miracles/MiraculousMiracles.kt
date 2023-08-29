@@ -168,8 +168,6 @@ object MiraculousMiracles : ModInitializer {
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ ->
             val playerState = ServerState.getPlayerState(handler.player)
 
-            if (playerState.activeMiraculous.isEmpty()) return@register
-
             val packetByteBuf = PacketByteBufs.create()
 
             packetByteBuf.writeIntArray(playerState.activeMiraculous.map { miraculousType -> miraculousType.id }
