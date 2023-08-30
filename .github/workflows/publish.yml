@@ -50,7 +50,7 @@ jobs:
           dependencies: |
             qsl@4.0.0-beta.30+0.76.0-1.19.2(required)
             qkl@1.0.2(required)
-            patchouli@1.19.2-77(optional)
+            patchouli@1.19.2-77-fabric(optional){curseforge:393236}
 
           loaders: quilt
           game-versions: ${{ env.MINECRAFT_VERSION }}
