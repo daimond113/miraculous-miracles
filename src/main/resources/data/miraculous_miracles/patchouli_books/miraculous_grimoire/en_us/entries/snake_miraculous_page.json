@@ -1,0 +1,17 @@
+{
+  "name": "Snake Miraculous",
+  "icon": "miraculous_miracles:snake_miraculous",
+  "category": "miraculous_miracles:grimoire_category",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "miraculous_miracles:snake_miraculous",
+      "text": "The miraculous of the Snake represents Intuition.$(br2)It gives it's user the power of Second Chance, which can be used indefinitely and will bring the user back to it's original activation coordinates."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "miraculous_miracles:snake_kwami",
+      "text": "The kwami of the Snake eats meat, and eggs."
+    }
+  ]
+}

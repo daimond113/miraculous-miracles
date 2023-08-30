@@ -1,0 +1,17 @@
+{
+  "name": "Turtle Miraculous",
+  "icon": "miraculous_miracles:turtle_miraculous",
+  "category": "miraculous_miracles:grimoire_category",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "miraculous_miracles:turtle_miraculous",
+      "text": "The miraculous of the Turtle represents Protection.$(br2)It gives it's user the power of Shell-ter, which will create an unbreakable cube around the block hit by it's projectile."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "miraculous_miracles:turtle_kwami",
+      "text": "The kwami of the Turtle eats sea grass, and kelp."
+    }
+  ]
+}

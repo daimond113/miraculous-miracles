@@ -1,0 +1,12 @@
+{
+  "name": "item.miraculous_miracles.miraculous_grimoire",
+  "subtitle": "An ancient spellbook",
+  "landing_text": "A book containing everything$(br)about the miraculouses",
+  "version": 0,
+  "creative_tab": "miraculous_miracles.item_group",
+  "book_texture": "miraculous_miracles:textures/gui/book_grimoire.png",
+  "show_progress": false,
+  "nameplate_color": "2e0505",
+  "model": "miraculous_miracles:miraculous_grimoire_item",
+  "pamphlet": true
+}
