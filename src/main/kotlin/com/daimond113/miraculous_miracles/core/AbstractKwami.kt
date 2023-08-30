@@ -14,6 +14,8 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.recipe.Ingredient
+import net.minecraft.sound.SoundCategory
+import net.minecraft.sound.SoundEvents
 import net.minecraft.tag.ItemTags
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
@@ -75,6 +77,15 @@ abstract class AbstractKwami(
         }
 
         if (miraculousStack == null) return ActionResult.PASS
+
+        world.playSound(
+            null,
+            blockPos,
+            SoundEvents.ENTITY_GENERIC_EAT,
+            SoundCategory.NEUTRAL,
+            1f,
+            1f
+        )
 
         AbstractMiraculous.setNBT(miraculousStack, kwamiHungry = false)
 
