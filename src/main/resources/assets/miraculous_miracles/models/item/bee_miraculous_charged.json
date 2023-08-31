@@ -1,8 +1,8 @@
 {
 	"credit": "Made with Blockbench",
 	"textures": {
-		"0": "miraculous_miracles:item/bee_charged",
-		"particle": "miraculous_miracles:item/bee_charged"
+		"0": "miraculous_miracles:item/bee_miraculous_charged",
+		"particle": "miraculous_miracles:item/bee_miraculous_charged"
 	},
 	"elements": [
 		{
