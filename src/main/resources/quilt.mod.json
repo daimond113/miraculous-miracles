@@ -45,6 +45,10 @@
 			{
 				"id": "minecraft",
 				"versions": "1.19.2"
+			},
+			{
+				"id": "patchouli",
+				"optional": true
 			}
 		]
 	}
