@@ -6,6 +6,8 @@ import com.daimond113.miraculous_miracles.core.MiraculousType
 import com.daimond113.miraculous_miracles.core.NetworkMessages
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiRenderer
+import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiModel
+import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiModel
@@ -41,6 +43,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
     val MODEL_BEE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "bee_kwami"), "main")
     val MODEL_TURTLE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "turtle_kwami"), "main")
     val MODEL_SNAKE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "snake_kwami"), "main")
+    val MODEL_LADYBUG_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "ladybug_kwami"), "main")
 
     private var activeMiraculous: Set<MiraculousType> = setOf()
 
@@ -69,6 +72,12 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.LADYBUG_YOYO_ENTITY) { context: EntityRendererFactory.Context ->
+            FlyingItemEntityRenderer(
+                context
+            )
+        }
+
         BlockRenderLayerMap.put(RenderLayer.getTranslucent(), MiraculousMiracles.TURTLE_SHELLTER_BLOCK)
 
         EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Bee]) { context ->
@@ -89,9 +98,16 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Ladybug]) { context ->
+            LadybugKwamiRenderer(
+                context
+            )
+        }
+
         EntityModelLayerRegistry.registerModelLayer(MODEL_BEE_KWAMI_LAYER, BeeKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_TURTLE_KWAMI_LAYER, TurtleKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_SNAKE_KWAMI_LAYER, SnakeKwamiModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(MODEL_LADYBUG_KWAMI_LAYER, LadybugKwamiModel::getTexturedModelData);
 
 
         val detransformKey = KeyBindingHelper.registerKeyBinding(

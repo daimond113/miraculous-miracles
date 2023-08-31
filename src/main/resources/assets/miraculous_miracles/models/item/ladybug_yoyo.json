@@ -1,0 +1,57 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "miraculous_miracles:item/ladybug_yoyo",
+		"particle": "miraculous_miracles:item/ladybug_yoyo"
+	},
+	"elements": [
+		{
+			"from": [4, 0, 4],
+			"to": [12, 2, 12],
+			"faces": {
+				"north": {"uv": [0.25, 0.25, 0.75, 0.75], "texture": "#0"},
+				"east": {"uv": [1.25, 0.25, 1.75, 0.75], "texture": "#0"},
+				"south": {"uv": [2.25, 0.25, 2.75, 0.75], "texture": "#0"},
+				"west": {"uv": [3.25, 0.25, 3.75, 0.75], "texture": "#0"},
+				"up": {"uv": [0.25, 1.25, 14.75, 15.75], "texture": "#0"},
+				"down": {"uv": [0.25, 1.25, 14.75, 15.75], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 1.25, -10.25],
+			"scale": [0.45, 0.45, 0.45]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 1.25, -10.25],
+			"scale": [0.45, 0.45, 0.45]
+		},
+		"firstperson_righthand": {
+			"rotation": [90, 0, 20],
+			"translation": [-1.75, 1.75, 5]
+		},
+		"firstperson_lefthand": {
+			"rotation": [90, 0, 20],
+			"translation": [-1.75, 1.75, 5]
+		},
+		"ground": {
+			"rotation": [0, 0, 90],
+			"translation": [-7, 1, 0]
+		},
+		"gui": {
+			"rotation": [90, 0, 0],
+			"scale": [1.25, 1.25, 1.25]
+		},
+		"head": {
+			"rotation": [0, 0, 90],
+			"translation": [2.5, 3.5, -3.75],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"fixed": {
+			"rotation": [90, 0, 0],
+			"translation": [0, 0, 6.5],
+			"scale": [1.2, 1.2, 1.2]
+		}
+	}
+}

@@ -4,9 +4,11 @@ import com.daimond113.miraculous_miracles.core.*
 import com.daimond113.miraculous_miracles.effects.TransformationTimeLeftEffect
 import com.daimond113.miraculous_miracles.items.*
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwami
+import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwami
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwami
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwami
 import com.daimond113.miraculous_miracles.miraculouses.BeeMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.LadybugMiraculous
 import com.daimond113.miraculous_miracles.miraculouses.SnakeMiraculous
 import com.daimond113.miraculous_miracles.miraculouses.TurtleMiraculous
 import com.daimond113.miraculous_miracles.states.PlayerState
@@ -56,7 +58,12 @@ object MiraculousMiracles : ModInitializer {
     val MIRACULOUSES = run {
         val map = mutableMapOf<MiraculousType, AbstractMiraculous>()
 
-        for (miraculousInstance in arrayOf(BeeMiraculous(), TurtleMiraculous(), SnakeMiraculous())) {
+        for (miraculousInstance in arrayOf(
+            BeeMiraculous(),
+            TurtleMiraculous(),
+            SnakeMiraculous(),
+            LadybugMiraculous()
+        )) {
             map[miraculousInstance.miraculousType] = miraculousInstance
         }
 
@@ -75,6 +82,10 @@ object MiraculousMiracles : ModInitializer {
         Pair(
             MiraculousType.Snake,
             QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::SnakeKwami).setDimensions(KWAMI_DIMENSIONS).build()
+        ),
+        Pair(
+            MiraculousType.Ladybug,
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::LadybugKwami).setDimensions(KWAMI_DIMENSIONS).build()
         )
     )
 
@@ -97,7 +108,8 @@ object MiraculousMiracles : ModInitializer {
     val MIRACULOUS_WEAPONS = mapOf(
         Pair(MiraculousType.Bee, SpinningTop()),
         Pair(MiraculousType.Turtle, Shield()),
-        Pair(MiraculousType.Snake, Lyre())
+        Pair(MiraculousType.Snake, Lyre()),
+        Pair(MiraculousType.Ladybug, Yoyo())
     )
 
     val BEE_VENOM = Venom()
@@ -122,13 +134,25 @@ object MiraculousMiracles : ModInitializer {
             .trackingTickInterval(10)
             .build()
 
+    val LUCKY_CHARM_SWORD = LuckyCharmSword()
+    val LUCKY_CHARM_PICKAXE = LuckyCharmPickaxe()
+
+    val LADYBUG_YOYO_ENTITY: EntityType<YoyoEntity> = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::YoyoEntity)
+        .setDimensions(
+            EntityDimensions(0.25f, 0.25f, true)
+        )
+        .maxChunkTrackingRange(4)
+        .trackingTickInterval(10)
+        .build()
+
     val TRANSFORMATION_TIME_LEFT_EFFECT = TransformationTimeLeftEffect()
 
     val MIRACULOUS_ITEM_TAGS = MiraculousType.values().associateWith { miraculousType ->
         QuiltTagKey.of(Registry.ITEM.key, Identifier(MOD_ID, miraculousType.toString().lowercase()), TagType.NORMAL)
     }
 
-    val SHELLTER_REPLACEABLE_TAG: TagKey<Block> = QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "shellter_replaceable"), TagType.NORMAL)
+    val SHELLTER_REPLACEABLE_TAG: TagKey<Block> =
+        QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "shellter_replaceable"), TagType.NORMAL)
 
     override fun onInitialize(mod: ModContainer) {
         val kwamiAttributes = AbstractKwami.createKwamiAttributes().build()
@@ -161,6 +185,11 @@ object MiraculousMiracles : ModInitializer {
             TURTLE_SHELLTER_BLOCK withPath "turtle_shellter_block" toRegistry Registry.BLOCK
             TURTLE_SHELLTER_ITEM withPath "turtle_shellter" toRegistry Registry.ITEM
             TURTLE_SHELLTER_ENTITY withPath "turtle_shellter_entity" toRegistry Registry.ENTITY_TYPE
+
+            LUCKY_CHARM_SWORD withPath "lucky_charm_sword" toRegistry Registry.ITEM
+            LUCKY_CHARM_PICKAXE withPath "lucky_charm_pickaxe" toRegistry Registry.ITEM
+
+            LADYBUG_YOYO_ENTITY withPath "ladybug_yoyo_entity" toRegistry Registry.ENTITY_TYPE
 
             TRANSFORMATION_TIME_LEFT_EFFECT withPath "transformation_time_left" toRegistry Registry.STATUS_EFFECT
         }

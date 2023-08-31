@@ -1,6 +1,7 @@
 package com.daimond113.miraculous_miracles.core
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
+import com.daimond113.miraculous_miracles.states.PlayerState
 import net.minecraft.block.BlockState
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.ai.goal.LookAroundGoal
@@ -14,6 +15,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.recipe.Ingredient
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.tag.ItemTags
@@ -31,6 +33,9 @@ val kwamiFoods = mapOf(
     },
     Pair(MiraculousType.Snake) { itemStack: ItemStack ->
         (itemStack.item.isFood && itemStack.item.foodComponent!!.isMeat) || itemStack.item == Items.EGG
+    },
+    Pair(MiraculousType.Ladybug) { itemStack: ItemStack ->
+        itemStack.item == Items.COOKIE
     }
 )
 
@@ -90,7 +95,13 @@ abstract class AbstractKwami(
         AbstractMiraculous.setNBT(miraculousStack, kwamiHungry = false)
 
         if (!player.isCreative) {
+            val isHoney = itemStack.item == Items.HONEY_BOTTLE
+
             itemStack.decrement(1)
+
+            if (isHoney) {
+                PlayerState.giveItemStack(ItemStack(Items.GLASS_BOTTLE), player as ServerPlayerEntity)
+            }
         }
 
         isHungry = false

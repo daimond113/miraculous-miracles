@@ -11,7 +11,8 @@ import net.minecraft.util.Identifier
 enum class ArmorMaterials(val miraculousType: MiraculousType) : ArmorMaterial {
     Bee(MiraculousType.Bee),
     Turtle(MiraculousType.Turtle),
-    Snake(MiraculousType.Snake);
+    Snake(MiraculousType.Snake),
+    Ladybug(MiraculousType.Ladybug);
 
     private val baseDurability = arrayOf(13, 15, 16, 11);
     private val protectionValues = arrayOf(3, 6, 8, 3);

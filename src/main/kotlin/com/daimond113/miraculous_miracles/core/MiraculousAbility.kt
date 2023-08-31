@@ -7,7 +7,9 @@ import net.minecraft.enchantment.Enchantments
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
+import java.util.Random
 
 // TODO: improve this mess
 enum class MiraculousAbility(
@@ -25,6 +27,7 @@ enum class MiraculousAbility(
 
         PlayerState.giveItemStack(stack, player)
     }),
+
     Shellter(1, MiraculousType.Turtle, { player, nbt, hasBeenUsed, landedPos ->
         val centrePos = if (hasBeenUsed)
             BlockPos(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"))
@@ -47,7 +50,9 @@ enum class MiraculousAbility(
                             if (player.world.getBlockState(pos).block !is com.daimond113.miraculous_miracles.items.ShellterBlock) continue
                             player.world.setBlockState(pos, Blocks.AIR.defaultState)
                         } else {
-                            if (!player.world.getBlockState(pos).isIn(MiraculousMiracles.SHELLTER_REPLACEABLE_TAG)) continue
+                            if (!player.world.getBlockState(pos)
+                                    .isIn(MiraculousMiracles.SHELLTER_REPLACEABLE_TAG)
+                            ) continue
                             player.world.setBlockState(pos, MiraculousMiracles.TURTLE_SHELLTER_BLOCK.defaultState)
                         }
                     }
@@ -55,6 +60,7 @@ enum class MiraculousAbility(
             }
         }
     }, withKeybind = false, isToggleable = true),
+
     SecondChance(2, MiraculousType.Snake, { player, nbt, _, _ ->
         val (x, y, z) = if (nbt.contains("x"))
             Triple(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"))
@@ -73,5 +79,32 @@ enum class MiraculousAbility(
             player.requestTeleport(x.toDouble(), y.toDouble(), z.toDouble())
         }
         player.onLanding()
-    }, ignoresMinutes = true, givesMinutesLeft = true);
+    }, ignoresMinutes = true, givesMinutesLeft = true),
+
+    LuckyCharm(3, MiraculousType.Ladybug, { player, _, _, _ ->
+        val luckyCharmType = run {
+            val start = player.getCameraPosVec(1f)
+            val end = start.add(player.getRotationVec(1f).multiply(5.0))
+            val box = net.minecraft.util.math.Box(start, end)
+            val entities = player.world.getOtherEntities(player, box) { true }
+            if (entities.isNotEmpty()) return@run 0
+
+            // note: this doesn't output entities, which is the reason for the code above
+            if (player.raycast(5.0, 1f, false).type == HitResult.Type.BLOCK) return@run 1
+
+            return@run Random().nextInt(2)
+        }
+
+        PlayerState.giveItemStack(
+            ItemStack(
+                arrayOf(
+                    MiraculousMiracles.LUCKY_CHARM_SWORD,
+                    MiraculousMiracles.LUCKY_CHARM_PICKAXE
+                )[luckyCharmType]
+            ).apply {
+                addEnchantment(Enchantments.VANISHING_CURSE, 1)
+            },
+            player
+        )
+    });
 }

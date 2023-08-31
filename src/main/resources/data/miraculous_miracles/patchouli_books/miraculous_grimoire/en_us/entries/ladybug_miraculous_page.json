@@ -1,0 +1,18 @@
+{
+  "name": "Ladybug Miraculous",
+  "icon": "miraculous_miracles:ladybug_miraculous",
+  "category": "miraculous_miracles:grimoire_category",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "miraculous_miracles:ladybug_miraculous",
+      "text": "The miraculous of the Ladybug represents Creation.$(br2)It gives it's user the power of Lucky Charm, which will give the user either a pickaxe or a sword. The item received can be controlled by looking at either a block or entity respectively."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "miraculous_miracles:ladybug_kwami",
+      "text": "The kwami of the Ladybug eats cookies."
+    }
+  ]
+}
