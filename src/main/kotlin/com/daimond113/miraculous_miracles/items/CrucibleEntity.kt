@@ -47,7 +47,6 @@ class CrucibleEntity(pos: BlockPos, state: BlockState) :
         miraculousType?.let { nbt.putString("miraculousType", it.name) }
         miraculousNbt?.let { nbt.put("miraculousNbt", it) }
         startedAt?.let { nbt.putLong("startedAt", it) }
-        MiraculousMiracles.LOGGER.info("writing nbt: ${nbt.string}")
         super.writeNbt(nbt)
     }
 

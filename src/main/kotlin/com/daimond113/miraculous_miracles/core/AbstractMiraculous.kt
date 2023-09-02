@@ -147,7 +147,6 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
             ) &&
             user is ServerPlayerEntity
         ) {
-            MiraculousMiracles.LOGGER.info("dmg is: ${stack.damage}")
             if (stack.damage >= stack.maxDamage) {
                 user.sendMessage(Text.translatable("text.miraculous_miracles.miraculous_too_damaged"), true)
                 return ActionResult.PASS

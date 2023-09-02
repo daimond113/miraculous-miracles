@@ -189,7 +189,7 @@ object MiraculousMiracles : ModInitializer {
             BEE_VENOM withPath "bee_venom" toRegistry Registry.ITEM
             BEE_SPINNING_TOP_ENTITY withPath "bee_spinning_top_entity" toRegistry Registry.ENTITY_TYPE
 
-            TURTLE_SHELLTER_BLOCK withPath "turtle_shellter_block" toRegistry Registry.BLOCK
+            TURTLE_SHELLTER_BLOCK withPath "turtle_shellter" toRegistry Registry.BLOCK
             TURTLE_SHELLTER_ITEM withPath "turtle_shellter" toRegistry Registry.ITEM
             TURTLE_SHELLTER_ENTITY withPath "turtle_shellter_entity" toRegistry Registry.ENTITY_TYPE
 
@@ -201,7 +201,7 @@ object MiraculousMiracles : ModInitializer {
             TRANSFORMATION_TIME_LEFT_EFFECT withPath "transformation_time_left" toRegistry Registry.STATUS_EFFECT
 
             CRUCIBLE withPath "crucible" toRegistry Registry.BLOCK
-            CRUCIBLE_ITEM withPath "crucible_item" toRegistry Registry.ITEM
+            CRUCIBLE_ITEM withPath "crucible" toRegistry Registry.ITEM
             CRUCIBLE_ENTITY withPath "crucible_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
             METEORITE_POWDER withPath "meteorite_powder" toRegistry Registry.ITEM
         }

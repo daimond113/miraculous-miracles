@@ -21,6 +21,7 @@ import net.minecraft.state.property.BooleanProperty
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
+import net.minecraft.util.Identifier
 import net.minecraft.util.function.BooleanBiFunction
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
@@ -33,7 +34,7 @@ import java.util.*
 
 
 class Crucible :
-    BlockWithEntity(blockSettingsOf(material = Material.METAL, requiresTool = true, hardness = 5f, resistance = 6f, soundGroup = BlockSoundGroup.METAL)) {
+    BlockWithEntity(blockSettingsOf(material = Material.METAL, requiresTool = true, hardness = 5f, resistance = 6f, soundGroup = BlockSoundGroup.METAL, lootTableId = Identifier(MiraculousMiracles.MOD_ID, "blocks/crucible"))) {
     companion object {
         val FILLED: BooleanProperty = BooleanProperty.of("filled")
     }
@@ -186,97 +187,7 @@ class Crucible :
         context: ShapeContext?
     ): VoxelShape {
         var shape = VoxelShapes.empty()
-        shape = VoxelShapes.combine(
-            shape,
-            VoxelShapes.cuboid(0.1875, 0.0, 0.1875, 0.8125, 0.125, 0.8125),
-            BooleanBiFunction.OR
-        )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.3125, 0.125, 0.6875, 0.6875, 0.5, 0.8125),
-                BooleanBiFunction.OR
-            )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.1875, 0.125, 0.3125, 0.3125, 0.5, 0.6875),
-                BooleanBiFunction.OR
-            )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.6875, 0.125, 0.3125, 0.8125, 0.5, 0.6875),
-                BooleanBiFunction.OR
-            )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.5625, 0.125, 0.1875, 0.6875, 0.5, 0.3125),
-                BooleanBiFunction.OR
-            )
-        shape = VoxelShapes.combine(
-            shape,
-            VoxelShapes.cuboid(0.3125, 0.125, 0.3125, 0.6875, 0.13749999999999996, 0.6875),
-            BooleanBiFunction.OR
-        )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.71875, 0.5, 0.5125, 0.78125, 0.75, 0.54375),
-                BooleanBiFunction.OR
-            )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.1875, 0.75, 0.4375, 0.8125, 0.875, 0.5625),
-                BooleanBiFunction.OR
-            )
-        shape = VoxelShapes.combine(
-            shape,
-            VoxelShapes.cuboid(0.71875, 0.5, 0.45625000000000004, 0.78125, 0.75, 0.48750000000000004),
-            BooleanBiFunction.OR
-        )
-        shape = VoxelShapes.combine(
-            shape,
-            VoxelShapes.cuboid(0.21875, 0.5, 0.45625000000000004, 0.28125, 0.75, 0.48750000000000004),
-            BooleanBiFunction.OR
-        )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.21875, 0.5, 0.5125, 0.28125, 0.75, 0.54375),
-                BooleanBiFunction.OR
-            )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.3125, 0.125, 0.1875, 0.4375, 0.5, 0.3125),
-                BooleanBiFunction.OR
-            )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.4375, 0.125, 0.1875, 0.5625, 0.4375, 0.3125),
-                BooleanBiFunction.OR
-            )
-        shape = VoxelShapes.combine(
-            shape,
-            VoxelShapes.cuboid(0.48125, 0.4378125, 0.150625, 0.5187499999999999, 0.4409375, 0.169375),
-            BooleanBiFunction.OR
-        )
-        shape = VoxelShapes.combine(
-            shape,
-            VoxelShapes.cuboid(0.4625, 0.4378125, 0.169375, 0.5375, 0.4409375, 0.188125),
-            BooleanBiFunction.OR
-        )
-        shape =
-            VoxelShapes.combine(
-                shape,
-                VoxelShapes.cuboid(0.3125, 0.125, 0.3125, 0.6875, 0.4375, 0.6875),
-                BooleanBiFunction.OR
-            )
-
-        return shape!!
+        shape = VoxelShapes.combine(shape, VoxelShapes.cuboid(0.1875, 0.0, 0.1875, 0.8125, 0.875, 0.8125), BooleanBiFunction.OR)
+        return shape
     }
 }

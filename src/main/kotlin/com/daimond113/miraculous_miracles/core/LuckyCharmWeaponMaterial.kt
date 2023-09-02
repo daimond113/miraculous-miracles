@@ -9,7 +9,7 @@ object LuckyCharmWeaponMaterial : ToolMaterial {
     }
 
     override fun getMiningSpeedMultiplier(): Float {
-        return 1.2f
+        return 9.2f
     }
 
     override fun getAttackDamage(): Float {

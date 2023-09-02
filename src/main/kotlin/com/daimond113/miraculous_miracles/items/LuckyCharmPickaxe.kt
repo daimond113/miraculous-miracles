@@ -10,7 +10,7 @@ import net.minecraft.util.Rarity
 class LuckyCharmPickaxe : PickaxeItem(
     LuckyCharmWeaponMaterial,
     1,
-    1f,
+    -2.8f,
     itemSettingsOf(group = MiraculousMiracles.ITEM_GROUP, rarity = Rarity.RARE)
 ) {
     override fun hasGlint(stack: ItemStack?): Boolean {
