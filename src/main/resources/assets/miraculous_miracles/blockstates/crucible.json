@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "filled=false": {
+      "model": "miraculous_miracles:block/crucible_empty"
+    },
+    "filled=true": {
+      "model": "miraculous_miracles:block/crucible_filled"
+    }
+  }
+}

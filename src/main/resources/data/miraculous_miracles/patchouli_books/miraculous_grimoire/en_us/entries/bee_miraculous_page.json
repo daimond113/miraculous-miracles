@@ -6,7 +6,7 @@
     {
       "type": "patchouli:spotlight",
       "item": "miraculous_miracles:bee_miraculous",
-      "text": "The miraculous of the Bee represents Action.$(br2)It gives it's user the power of Venom, which may be used to immobilize any entity that may be in it's user's way."
+      "text": "The miraculous of the Bee represents $(thing)Action$().$(br2)It gives it's user the power of $(thing)Venom$(), which may be used to immobilize any entity that may be in it's user's way."
     },
     {
       "type": "patchouli:entity",

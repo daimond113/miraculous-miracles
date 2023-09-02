@@ -19,7 +19,7 @@ import java.util.*
 
 
 class PlayerState {
-    var activeMiraculous: MutableSet<MiraculousType> = mutableSetOf()
+    var activeMiraculous: MutableMap<MiraculousType, NbtCompound> = mutableMapOf()
     var usedAbilities: MutableMap<MiraculousAbility, NbtCompound> = mutableMapOf()
 
     companion object {
@@ -38,7 +38,7 @@ class PlayerState {
         }
 
         fun replaceItemStack(replace: ItemStack, with: ItemStack, player: ServerPlayerEntity) {
-            val index = player.inventory.indexOf(replace)
+            val index = player.inventory.getSlotWithStack(replace)
             if (index < 0) return
             player.inventory.removeStack(index)
             player.inventory.updateItems()
@@ -59,14 +59,14 @@ class PlayerState {
         }
     }
 
-    fun updateActiveMiraculous(player: ServerPlayerEntity) {
+    fun updateActiveMiraculous(player: ServerPlayerEntity, asDirty: Boolean = true) {
         val packetByteBuf = PacketByteBufs.create()
 
-        packetByteBuf.writeIntArray(activeMiraculous.map { miraculousType -> miraculousType.id }
+        packetByteBuf.writeIntArray(activeMiraculous.keys.map { miraculousType -> miraculousType.id }
             .toIntArray())
 
         ServerPlayNetworking.send(player, NetworkMessages.RECEIVE_ACTIVE_MIRACULOUS, packetByteBuf)
-        ServerState.getServerState(player.server).markDirty()
+        if (asDirty) ServerState.getServerState(player.server).markDirty()
     }
 
     fun hasUsedAbility(ability: MiraculousAbility, ignoreToggled: Boolean = false): Boolean {
@@ -164,6 +164,7 @@ class PlayerState {
         }
 
         for (miraculousType in miraculousTypes) {
+            val nbt = activeMiraculous[miraculousType]
             activeMiraculous.remove(miraculousType)
             usedAbilities.entries.removeIf { (ability, nbt) ->
                 if (ability.miraculousType == miraculousType && ability.isToggleable && nbt.getBoolean("hasBeenUsed")) {
@@ -181,13 +182,15 @@ class PlayerState {
             player.world.spawnEntity(newKwami)
 
             if (newKwami != null) {
-                val newMiraculous = ItemStack(MiraculousMiracles.MIRACULOUSES[miraculousType])
                 newKwami.isHungry = true
+                val newMiraculous = ItemStack(MiraculousMiracles.MIRACULOUSES[miraculousType])
+                newMiraculous.nbt = nbt
                 AbstractMiraculous.setNBT(newMiraculous, Optional.of(newKwami.uuid), true)
+                newMiraculous.damage += 1
                 giveItemStack(newMiraculous, player)
             }
         }
 
-        updateActiveMiraculous(player)
+        updateActiveMiraculous(player, false)
     }
 }

@@ -47,7 +47,9 @@ enum class MiraculousAbility(
                     if (x == -halfSize || x == halfSize || y == -halfSize || y == halfSize || z == -halfSize || z == halfSize) {
                         val pos = centrePos.add(x, y, z)
                         if (hasBeenUsed) {
-                            if (player.world.getBlockState(pos).block !is com.daimond113.miraculous_miracles.items.ShellterBlock) continue
+                            if (!player.world.getBlockState(pos)
+                                    .isOf(MiraculousMiracles.TURTLE_SHELLTER_BLOCK)
+                            ) continue
                             player.world.setBlockState(pos, Blocks.AIR.defaultState)
                         } else {
                             if (!player.world.getBlockState(pos)

@@ -6,7 +6,7 @@
     {
       "type": "patchouli:spotlight",
       "item": "miraculous_miracles:turtle_miraculous",
-      "text": "The miraculous of the Turtle represents Protection.$(br2)It gives it's user the power of Shell-ter, which will create an unbreakable cube around the block hit by it's projectile."
+      "text": "The miraculous of the Turtle represents $(thing)Protection$().$(br2)It gives it's user the power of $(thing)Shell-ter$(), which will create an unbreakable cube around the block hit by it's projectile."
     },
     {
       "type": "patchouli:entity",

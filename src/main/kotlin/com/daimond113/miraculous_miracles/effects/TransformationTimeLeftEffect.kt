@@ -21,7 +21,7 @@ class TransformationTimeLeftEffect : StatusEffect(StatusEffectType.NEUTRAL, 0xfa
         if (entity is PlayerEntity) {
             val playerState = ServerState.getPlayerState(entity)
 
-            playerState.detransform(entity as ServerPlayerEntity, playerState.activeMiraculous, true)
+            playerState.detransform(entity as ServerPlayerEntity, playerState.activeMiraculous.keys, true)
         }
 
         return

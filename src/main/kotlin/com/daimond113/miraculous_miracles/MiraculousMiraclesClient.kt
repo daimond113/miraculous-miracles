@@ -4,6 +4,7 @@ import com.daimond113.miraculous_miracles.core.AbstractMiraculous
 import com.daimond113.miraculous_miracles.core.MiraculousAbility
 import com.daimond113.miraculous_miracles.core.MiraculousType
 import com.daimond113.miraculous_miracles.core.NetworkMessages
+import com.daimond113.miraculous_miracles.items.CrucibleRenderer
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiModel
@@ -22,6 +23,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry
 import net.minecraft.client.item.ModelPredicateProviderRegistry
 import net.minecraft.client.option.KeyBind
 import net.minecraft.client.render.RenderLayer
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactories
 import net.minecraft.client.render.entity.EntityRendererFactory
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer
 import net.minecraft.client.render.entity.model.EntityModelLayer
@@ -77,6 +79,8 @@ object MiraculousMiraclesClient : ClientModInitializer {
                 context
             )
         }
+
+        BlockEntityRendererFactories.register(MiraculousMiracles.CRUCIBLE_ENTITY) { CrucibleRenderer() }
 
         BlockRenderLayerMap.put(RenderLayer.getTranslucent(), MiraculousMiracles.TURTLE_SHELLTER_BLOCK)
 
@@ -154,7 +158,9 @@ object MiraculousMiraclesClient : ClientModInitializer {
 
                 client.setScreen(
                     RadialScreen(
-                        "screen.miraculous_miracles.detransform", detransformKey, activeMiraculous.map { miraculousType ->
+                        "screen.miraculous_miracles.detransform",
+                        detransformKey,
+                        activeMiraculous.map { miraculousType ->
                             RadialAction(
                                 "item.miraculous_miracles.${
                                     miraculousType.toString().lowercase()

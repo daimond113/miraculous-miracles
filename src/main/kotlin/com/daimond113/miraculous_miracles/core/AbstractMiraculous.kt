@@ -19,17 +19,16 @@ import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.ItemScatterer
 import net.minecraft.util.Rarity
-import org.quiltmc.qkl.library.items.itemSettingsOf
 import java.util.*
 
 abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((ItemStack) -> EquipmentSlot)? = null) :
     Item(
         itemSettingsOf(
-            maxCount = 1,
             rarity = Rarity.EPIC,
             fireproof = true,
             equipmentSlot = slot,
-            group = MiraculousMiracles.ITEM_GROUP
+            group = MiraculousMiracles.ITEM_GROUP,
+            maxDamage = 128
         )
     ) {
     companion object {
@@ -110,6 +109,10 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
         return ActionResult.CONSUME
     }
 
+    override fun isDamageable(): Boolean {
+        return false
+    }
+
     override fun postHit(stack: ItemStack, target: LivingEntity, attacker: LivingEntity): Boolean {
         if (target is AbstractKwami && target.miraculousType == miraculousType && target.uuid == getOptionalKwamiUuid(
                 stack
@@ -144,11 +147,17 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
             ) &&
             user is ServerPlayerEntity
         ) {
+            MiraculousMiracles.LOGGER.info("dmg is: ${stack.damage}")
+            if (stack.damage >= stack.maxDamage) {
+                user.sendMessage(Text.translatable("text.miraculous_miracles.miraculous_too_damaged"), true)
+                return ActionResult.PASS
+            }
+
             val playerState = ServerState.getPlayerState(user)
 
             // TODO: Unifications
             if (playerState.activeMiraculous.isEmpty()) {
-                playerState.activeMiraculous.add(miraculousType)
+                playerState.activeMiraculous[miraculousType] = stack.nbt ?: NbtCompound()
                 playerState.updateActiveMiraculous(user)
 
                 val inventory = user.inventory

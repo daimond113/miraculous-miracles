@@ -18,26 +18,10 @@ import net.minecraft.recipe.Ingredient
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
-import net.minecraft.tag.ItemTags
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-
-val kwamiFoods = mapOf(
-    Pair(MiraculousType.Bee) { itemStack: ItemStack ->
-        itemStack.isIn(ItemTags.FLOWERS) || itemStack.item == Items.HONEY_BOTTLE
-    },
-    Pair(MiraculousType.Turtle) { itemStack: ItemStack ->
-        itemStack.item == Items.SEAGRASS || itemStack.item == Items.KELP
-    },
-    Pair(MiraculousType.Snake) { itemStack: ItemStack ->
-        (itemStack.item.isFood && itemStack.item.foodComponent!!.isMeat) || itemStack.item == Items.EGG
-    },
-    Pair(MiraculousType.Ladybug) { itemStack: ItemStack ->
-        itemStack.item == Items.COOKIE
-    }
-)
 
 abstract class AbstractKwami(
     val miraculousType: MiraculousType, entityType: EntityType<out AbstractKwami>, world: World
@@ -67,7 +51,7 @@ abstract class AbstractKwami(
     override fun interactMob(player: PlayerEntity, hand: Hand): ActionResult {
         if (!isHungry || player.world.server == null) return ActionResult.PASS
         val itemStack = player.getStackInHand(hand)
-        if (!kwamiFoods[miraculousType]!!(itemStack)) return ActionResult.PASS
+        if (!miraculousType.foodPredicate(itemStack)) return ActionResult.PASS
 
         var miraculousStack: ItemStack? = null
         for (i in 0 until player.inventory.size()) {

@@ -1,6 +1,7 @@
 package com.daimond113.miraculous_miracles
 
 import com.daimond113.miraculous_miracles.core.*
+import com.daimond113.miraculous_miracles.core.ArmorMaterials
 import com.daimond113.miraculous_miracles.effects.TransformationTimeLeftEffect
 import com.daimond113.miraculous_miracles.items.*
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwami
@@ -19,29 +20,30 @@ import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.SpawnGroup
 import net.minecraft.entity.attribute.DefaultAttributeRegistry
-import net.minecraft.item.ArmorItem
-import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
+import net.minecraft.item.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.tag.TagKey
 import net.minecraft.util.Identifier
+import net.minecraft.util.Rarity
 import net.minecraft.util.registry.Registry
+import net.minecraft.village.TradeOffer
+import net.minecraft.village.VillagerProfession
 import org.quiltmc.loader.api.ModContainer
 import org.quiltmc.qkl.library.items.itemGroupOf
-import org.quiltmc.qkl.library.items.itemSettingsOf
 import org.quiltmc.qkl.library.registry.registryScope
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer
+import org.quiltmc.qsl.block.entity.api.QuiltBlockEntityTypeBuilder
 import org.quiltmc.qsl.entity.api.QuiltEntityTypeBuilder
 import org.quiltmc.qsl.entity_events.api.LivingEntityDeathCallback
-import org.quiltmc.qsl.networking.api.PacketByteBufs
 import org.quiltmc.qsl.networking.api.ServerPlayConnectionEvents
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking
 import org.quiltmc.qsl.tag.api.QuiltTagKey
 import org.quiltmc.qsl.tag.api.TagType
+import org.quiltmc.qsl.villager.api.TradeOfferHelper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-val ARMOR_ITEM_SETTINGS = itemSettingsOf(maxCount = 1, maxDamage = 9000, group = MiraculousMiracles.ITEM_GROUP)
+val ARMOR_ITEM_SETTINGS = itemSettingsOf(maxDamage = 9000, group = MiraculousMiracles.ITEM_GROUP)
 
 val KWAMI_DIMENSIONS = EntityDimensions(0.3f, 0.6f, true)
 
@@ -53,7 +55,7 @@ object MiraculousMiracles : ModInitializer {
 
     val ITEM_GROUP = itemGroupOf(
         id = Identifier(MOD_ID, "item_group"),
-        iconSupplier = { -> ItemStack(MIRACULOUSES[MiraculousType.Bee]) })
+        iconSupplier = { MIRACULOUSES[MiraculousType.Bee]!!.defaultStack })
 
     val MIRACULOUSES = run {
         val map = mutableMapOf<MiraculousType, AbstractMiraculous>()
@@ -95,10 +97,10 @@ object MiraculousMiracles : ModInitializer {
         for (armorMaterial in ArmorMaterials.values()) {
             map[armorMaterial.miraculousType] =
                 arrayOf(
-                    ArmorItem(armorMaterial, EquipmentSlot.FEET, ARMOR_ITEM_SETTINGS),
-                    ArmorItem(armorMaterial, EquipmentSlot.LEGS, ARMOR_ITEM_SETTINGS),
-                    ArmorItem(armorMaterial, EquipmentSlot.CHEST, ARMOR_ITEM_SETTINGS),
-                    ArmorItem(armorMaterial, EquipmentSlot.HEAD, ARMOR_ITEM_SETTINGS),
+                    GlintlessArmorItem(armorMaterial, EquipmentSlot.FEET, ARMOR_ITEM_SETTINGS),
+                    GlintlessArmorItem(armorMaterial, EquipmentSlot.LEGS, ARMOR_ITEM_SETTINGS),
+                    GlintlessArmorItem(armorMaterial, EquipmentSlot.CHEST, ARMOR_ITEM_SETTINGS),
+                    GlintlessArmorItem(armorMaterial, EquipmentSlot.HEAD, ARMOR_ITEM_SETTINGS),
                 )
         }
 
@@ -154,6 +156,11 @@ object MiraculousMiracles : ModInitializer {
     val SHELLTER_REPLACEABLE_TAG: TagKey<Block> =
         QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "shellter_replaceable"), TagType.NORMAL)
 
+    val CRUCIBLE = Crucible()
+    val CRUCIBLE_ENTITY = QuiltBlockEntityTypeBuilder.create(::CrucibleEntity, CRUCIBLE).build()
+    val CRUCIBLE_ITEM = BlockItem(CRUCIBLE, itemSettingsOf(group = ITEM_GROUP))
+    val METEORITE_POWDER = Item(itemSettingsOf(group = ITEM_GROUP, rarity = Rarity.UNCOMMON))
+
     override fun onInitialize(mod: ModContainer) {
         val kwamiAttributes = AbstractKwami.createKwamiAttributes().build()
 
@@ -192,17 +199,30 @@ object MiraculousMiracles : ModInitializer {
             LADYBUG_YOYO_ENTITY withPath "ladybug_yoyo_entity" toRegistry Registry.ENTITY_TYPE
 
             TRANSFORMATION_TIME_LEFT_EFFECT withPath "transformation_time_left" toRegistry Registry.STATUS_EFFECT
+
+            CRUCIBLE withPath "crucible" toRegistry Registry.BLOCK
+            CRUCIBLE_ITEM withPath "crucible_item" toRegistry Registry.ITEM
+            CRUCIBLE_ENTITY withPath "crucible_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
+            METEORITE_POWDER withPath "meteorite_powder" toRegistry Registry.ITEM
+        }
+
+        TradeOfferHelper.registerVillagerOffers(
+            VillagerProfession.CARTOGRAPHER,
+            1
+        ) { factories ->
+            factories.add { _, random ->
+                TradeOffer(
+                    ItemStack(Items.EMERALD, random.range(6, 21)),
+                    ItemStack(METEORITE_POWDER, random.range(1, 4)),
+                    random.range(4, 17),
+                    3,
+                    0.03f
+                )
+            }
         }
 
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ ->
-            val playerState = ServerState.getPlayerState(handler.player)
-
-            val packetByteBuf = PacketByteBufs.create()
-
-            packetByteBuf.writeIntArray(playerState.activeMiraculous.map { miraculousType -> miraculousType.id }
-                .toIntArray())
-
-            ServerPlayNetworking.send(handler.player, NetworkMessages.RECEIVE_ACTIVE_MIRACULOUS, packetByteBuf)
+            ServerState.getPlayerState(handler.player).updateActiveMiraculous(handler.player, false)
         }
 
         ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.DETRANSFORM) { _, player, _, packetByteBuf, _ ->
@@ -242,7 +262,7 @@ object MiraculousMiracles : ModInitializer {
             if (entity !is ServerPlayerEntity) return@register
             val playerState = ServerState.getPlayerState(entity)
 
-            playerState.detransform(entity, playerState.activeMiraculous, true)
+            playerState.detransform(entity, playerState.activeMiraculous.keys, true)
         }
     }
 }

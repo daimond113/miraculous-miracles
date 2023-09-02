@@ -8,5 +8,4 @@ import net.minecraft.world.World
 class SnakeKwami(entityType: EntityType<out SnakeKwami>, world: World) : AbstractKwami(
     MiraculousType.Snake, entityType,
     world
-) {
-}
+)

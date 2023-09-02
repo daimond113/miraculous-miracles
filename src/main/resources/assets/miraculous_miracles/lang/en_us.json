@@ -8,6 +8,10 @@
   "text.miraculous_miracles.renunciacion": "%s, I renounce you.",
   "itemGroup.miraculous_miracles.item_group": "Miraculous Miracles",
   "item.miraculous_miracles.miraculous_grimoire": "Miraculous Grimoire",
+  "text.miraculous_miracles.miraculous_too_damaged": "This miraculous is too damaged, and must be repaired",
+  "block.miraculous_miracles.crucible": "Crucible",
+  "item.miraculous_miracles.meteorite_powder": "Meteorite Powder",
+  "text.miraculous_miracles.repair_miraculous": "Miraculous, repair yourself!",
 
   "item.miraculous_miracles.bee_miraculous": "Bee Miraculous",
   "entity.miraculous_miracles.bee_kwami": "Pollen",

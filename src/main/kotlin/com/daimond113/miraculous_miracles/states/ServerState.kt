@@ -2,6 +2,7 @@ package com.daimond113.miraculous_miracles.states
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
 import com.daimond113.miraculous_miracles.core.MiraculousAbility
+import com.daimond113.miraculous_miracles.core.MiraculousType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.MinecraftServer
@@ -18,9 +19,13 @@ class ServerState : PersistentState() {
         players.forEach { (uuid: UUID, playerState: PlayerState) ->
             val playerStateNbt = NbtCompound()
 
-            playerStateNbt.putIntArray(
-                "activeMiraculous",
-                playerState.activeMiraculous.map { miraculousType -> miraculousType.id })
+            val activeMiraculousNbt = NbtCompound()
+
+            for ((miraculousType, data) in playerState.activeMiraculous) {
+                activeMiraculousNbt.put(miraculousType.id.toString(), data)
+            }
+
+            playerStateNbt.put("activeMiraculous", activeMiraculousNbt)
 
             val usedAbilitiesNbt = NbtCompound()
 
@@ -49,16 +54,22 @@ class ServerState : PersistentState() {
 
                 val playerCompound = playersTag.getCompound(uuidString)
 
-                playerState.activeMiraculous =
-                    playerCompound.getIntArray("activeMiraculous")
-                        .map { miraculousId -> PlayerState.getMiraculousTypeById(miraculousId) }
-                        .toMutableSet()
+                val activeMiraculousNbt = playerCompound.getCompound("usedAbilities")
+                val activeMiraculous: MutableMap<MiraculousType, NbtCompound> = mutableMapOf()
+
+                for (miraculousType in activeMiraculousNbt.keys) {
+                    activeMiraculous[PlayerState.getMiraculousTypeById(miraculousType.toInt())] =
+                        activeMiraculousNbt.getCompound(miraculousType)
+                }
+
+                playerState.activeMiraculous = activeMiraculous
 
                 val usedAbilitiesCompound = playerCompound.getCompound("usedAbilities")
                 val usedAbilities: MutableMap<MiraculousAbility, NbtCompound> = mutableMapOf()
 
                 for (abilityKey in usedAbilitiesCompound.keys) {
-                    usedAbilities[PlayerState.getAbilityById(abilityKey.toInt())] = usedAbilitiesCompound.getCompound(abilityKey)
+                    usedAbilities[PlayerState.getAbilityById(abilityKey.toInt())] =
+                        usedAbilitiesCompound.getCompound(abilityKey)
                 }
 
                 playerState.usedAbilities = usedAbilities

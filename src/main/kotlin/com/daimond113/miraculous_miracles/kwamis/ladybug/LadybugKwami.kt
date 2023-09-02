@@ -8,5 +8,4 @@ import net.minecraft.world.World
 class LadybugKwami(entityType: EntityType<out LadybugKwami>, world: World) : AbstractKwami(
     MiraculousType.Ladybug, entityType,
     world
-) {
-}
+)

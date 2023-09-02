@@ -1,0 +1,24 @@
+{
+  "name": "Fixing Miraculouses",
+  "icon": "miraculous_miracles:crucible_item",
+  "category": "miraculous_miracles:grimoire_category",
+  "sortnum": -3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The miraculouses, while very strong, also experience slow degradation. Once a miraculous gets to 0 durability, $(bold)you won't be able to transform$(). A miraculous has $(bold)128$() transformations before it's too damaged."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "In order to fix a miraculous, you first must get a $(item)Crucible$(), which must be placed under lava, fire, or any campfire.$(br2)$(italic)Dust from the sky, now precious, will fix the wings of the injured animal. Combine the molten $(item)gold$(nocolor) with the $(item)meteorite powder$(nocolor), then add$():"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(l:ladybug_miraculous_page)Ladybug$() - Cocoa Beans$()$(li)$(l:bee_miraculous_page)Bee$() - Honey Comb$()$(li)$(l:snake_miraculous_page)Snake$() - Leather$()$(li)$(l:turtle_miraculous_page)Turtle$() - Scute$()"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(t:Meteorite Powder)$(item)$(italic)Dust from the sky$() is a really rare item, as it's crushed fine meteorite. You cannot find them out in the wild, instead you have to buy it from cartographers."
+    }
+  ]
+}

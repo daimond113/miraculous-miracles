@@ -8,5 +8,4 @@ import net.minecraft.world.World
 class TurtleKwami(entityType: EntityType<out TurtleKwami>, world: World) : AbstractKwami(
     MiraculousType.Turtle, entityType,
     world
-) {
-}
+)

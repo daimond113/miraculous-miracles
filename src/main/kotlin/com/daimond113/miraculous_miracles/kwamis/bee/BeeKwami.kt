@@ -8,5 +8,4 @@ import net.minecraft.world.World
 class BeeKwami(entityType: EntityType<out BeeKwami>, world: World) : AbstractKwami(
     MiraculousType.Bee, entityType,
     world
-) {
-}
+)
