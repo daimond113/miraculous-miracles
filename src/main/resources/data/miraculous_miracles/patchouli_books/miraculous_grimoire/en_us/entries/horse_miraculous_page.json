@@ -1,0 +1,17 @@
+{
+  "name": "Horse Miraculous",
+  "icon": "miraculous_miracles:horse_miraculous",
+  "category": "miraculous_miracles:grimoire_category",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "miraculous_miracles:horse_miraculous",
+      "text": "The miraculous of the Horse represents $(thing)Migration$().$(br2)It gives it's user the power of $(thing)Voyage$(), which creates a portal to any place in the world."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "miraculous_miracles:horse_kwami",
+      "text": "The kwami of the Horse eats apples, and wheat."
+    }
+  ]
+}

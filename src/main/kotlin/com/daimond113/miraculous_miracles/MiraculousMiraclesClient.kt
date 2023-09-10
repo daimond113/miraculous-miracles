@@ -7,15 +7,18 @@ import com.daimond113.miraculous_miracles.core.NetworkMessages
 import com.daimond113.miraculous_miracles.items.CrucibleRenderer
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiRenderer
+import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwamiModel
+import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiRenderer
-import com.daimond113.miraculous_miracles.radial.RadialAction
-import com.daimond113.miraculous_miracles.radial.RadialScreen
 import com.daimond113.miraculous_miracles.states.PlayerState
+import com.daimond113.miraculous_miracles.ui.RadialAction
+import com.daimond113.miraculous_miracles.ui.RadialScreen
+import com.daimond113.miraculous_miracles.ui.VoyageCoordinateScreen
 import com.mojang.blaze3d.platform.InputUtil
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
@@ -46,6 +49,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
     val MODEL_TURTLE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "turtle_kwami"), "main")
     val MODEL_SNAKE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "snake_kwami"), "main")
     val MODEL_LADYBUG_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "ladybug_kwami"), "main")
+    val MODEL_HORSE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "horse_kwami"), "main")
 
     private var activeMiraculous: Set<MiraculousType> = setOf()
 
@@ -80,9 +84,16 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.VOYAGE_ENTITY) { context: EntityRendererFactory.Context ->
+            FlyingItemEntityRenderer(
+                context
+            )
+        }
+
         BlockEntityRendererFactories.register(MiraculousMiracles.CRUCIBLE_ENTITY) { CrucibleRenderer() }
 
         BlockRenderLayerMap.put(RenderLayer.getTranslucent(), MiraculousMiracles.TURTLE_SHELLTER_BLOCK)
+        BlockRenderLayerMap.put(RenderLayer.getTranslucent(), MiraculousMiracles.VOYAGE_BLOCK)
 
         EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Bee]) { context ->
             BeeKwamiRenderer(
@@ -108,10 +119,17 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Horse]) { context ->
+            HorseKwamiRenderer(
+                context
+            )
+        }
+
         EntityModelLayerRegistry.registerModelLayer(MODEL_BEE_KWAMI_LAYER, BeeKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_TURTLE_KWAMI_LAYER, TurtleKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_SNAKE_KWAMI_LAYER, SnakeKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_LADYBUG_KWAMI_LAYER, LadybugKwamiModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(MODEL_HORSE_KWAMI_LAYER, HorseKwamiModel::getTexturedModelData);
 
 
         val detransformKey = KeyBindingHelper.registerKeyBinding(
@@ -139,7 +157,6 @@ object MiraculousMiraclesClient : ClientModInitializer {
 
         ClientTickEvents.END.register { client ->
             if (!(detransformKey.isPressed || abilityKey.isPressed) || client.currentScreen != null) {
-
                 return@register
             }
 
@@ -202,6 +219,14 @@ object MiraculousMiraclesClient : ClientModInitializer {
                         }
                     )
                 )
+            }
+        }
+
+        ClientPlayNetworking.registerGlobalReceiver(NetworkMessages.REQUEST_SET_VOYAGE_COORDS) { client, _, _, _ ->
+            client.execute {
+                if (client.currentScreen != null) return@execute
+
+                client.setScreen(VoyageCoordinateScreen())
             }
         }
     }

@@ -33,5 +33,12 @@ enum class MiraculousType(val id: Int, val foodPredicate: (ItemStack) -> Boolean
             itemStack.item == Items.COOKIE
         },
         Items.COCOA_BEANS
+    ),
+    Horse(
+        4,
+        { itemStack ->
+            itemStack.item == Items.APPLE || itemStack.item == Items.WHEAT
+        },
+        Items.SADDLE
     )
 }

@@ -64,5 +64,22 @@
   "item.miraculous_miracles.ladybug_head": "Ladybug Helmet",
   "item.miraculous_miracles.ladybug_chest": "Ladybug Chestplate",
   "item.miraculous_miracles.ladybug_legs": "Ladybug Leggings",
-  "item.miraculous_miracles.ladybug_feet": "Ladybug Boots"
+  "item.miraculous_miracles.ladybug_feet": "Ladybug Boots",
+
+  "item.miraculous_miracles.horse_miraculous": "Horse Miraculous",
+  "entity.miraculous_miracles.horse_kwami": "Kaalki",
+  "text.miraculous_miracles.horse.transformation": "Kaalki, Full Gallop!",
+  "text.miraculous_miracles.horse.detransformation": "Dismount!",
+  "ability.miraculous_miracles.voyage": "Voyage",
+  "text.miraculous_miracles.voyage.shout": "Voyage!",
+  "item.miraculous_miracles.voyage": "Voyage",
+  "item.miraculous_miracles.horse_horseshoe": "Horseshoe",
+  "item.miraculous_miracles.horse_head": "Horse Helmet",
+  "item.miraculous_miracles.horse_chest": "Horse Chestplate",
+  "item.miraculous_miracles.horse_legs": "Horse Leggings",
+  "item.miraculous_miracles.horse_feet": "Horse Boots",
+  "screen.miraculous_miracles.voyage_coords": "Voyage Coordinates",
+  "text.miraculous_miracles.voyage.x_coordinate": "X: ",
+  "text.miraculous_miracles.voyage.y_coordinate": "Y: ",
+  "text.miraculous_miracles.voyage.z_coordinate": "Z: "
 }

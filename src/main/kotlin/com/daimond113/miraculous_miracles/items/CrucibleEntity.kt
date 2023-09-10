@@ -18,7 +18,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 import net.minecraft.world.explosion.Explosion
-import org.quiltmc.qkl.library.nbt.string
 
 
 class CrucibleEntity(pos: BlockPos, state: BlockState) :

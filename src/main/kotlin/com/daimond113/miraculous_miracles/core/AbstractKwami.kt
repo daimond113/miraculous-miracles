@@ -43,7 +43,7 @@ abstract class AbstractKwami(
     companion object {
         fun createKwamiAttributes(): DefaultAttributeContainer.Builder {
             return createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 200.0)
-                .add(EntityAttributes.GENERIC_FLYING_SPEED, 0.65).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.8)
+                .add(EntityAttributes.GENERIC_FLYING_SPEED, 0.65).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0)
         }
     }

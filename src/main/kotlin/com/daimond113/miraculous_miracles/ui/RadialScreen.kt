@@ -1,4 +1,4 @@
-package com.daimond113.miraculous_miracles.radial
+package com.daimond113.miraculous_miracles.ui
 
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.platform.InputUtil

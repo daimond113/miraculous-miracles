@@ -5,16 +5,15 @@ import com.daimond113.miraculous_miracles.core.ArmorMaterials
 import com.daimond113.miraculous_miracles.effects.TransformationTimeLeftEffect
 import com.daimond113.miraculous_miracles.items.*
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwami
+import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwami
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwami
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwami
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwami
-import com.daimond113.miraculous_miracles.miraculouses.BeeMiraculous
-import com.daimond113.miraculous_miracles.miraculouses.LadybugMiraculous
-import com.daimond113.miraculous_miracles.miraculouses.SnakeMiraculous
-import com.daimond113.miraculous_miracles.miraculouses.TurtleMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.*
 import com.daimond113.miraculous_miracles.states.PlayerState
 import com.daimond113.miraculous_miracles.states.ServerState
 import net.minecraft.block.Block
+import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.entity.EntityDimensions
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
@@ -64,7 +63,8 @@ object MiraculousMiracles : ModInitializer {
             BeeMiraculous(),
             TurtleMiraculous(),
             SnakeMiraculous(),
-            LadybugMiraculous()
+            LadybugMiraculous(),
+            HorseMiraculous()
         )) {
             map[miraculousInstance.miraculousType] = miraculousInstance
         }
@@ -73,22 +73,16 @@ object MiraculousMiracles : ModInitializer {
     }
 
     val KWAMIS = mapOf(
-        Pair(
-            MiraculousType.Bee,
-            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::BeeKwami).setDimensions(KWAMI_DIMENSIONS).build()
-        ),
-        Pair(
-            MiraculousType.Turtle,
-            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::TurtleKwami).setDimensions(KWAMI_DIMENSIONS).build()
-        ),
-        Pair(
-            MiraculousType.Snake,
-            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::SnakeKwami).setDimensions(KWAMI_DIMENSIONS).build()
-        ),
-        Pair(
-            MiraculousType.Ladybug,
-            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::LadybugKwami).setDimensions(KWAMI_DIMENSIONS).build()
-        )
+        MiraculousType.Bee to
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::BeeKwami).setDimensions(KWAMI_DIMENSIONS).build(),
+        MiraculousType.Turtle to
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::TurtleKwami).setDimensions(KWAMI_DIMENSIONS).build(),
+        MiraculousType.Snake to
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::SnakeKwami).setDimensions(KWAMI_DIMENSIONS).build(),
+        MiraculousType.Ladybug to
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::LadybugKwami).setDimensions(KWAMI_DIMENSIONS).build(),
+        MiraculousType.Horse to
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::HorseKwami).setDimensions(KWAMI_DIMENSIONS).build()
     )
 
     val ARMORS = run {
@@ -108,10 +102,11 @@ object MiraculousMiracles : ModInitializer {
     }
 
     val MIRACULOUS_WEAPONS = mapOf(
-        Pair(MiraculousType.Bee, SpinningTop()),
-        Pair(MiraculousType.Turtle, Shield()),
-        Pair(MiraculousType.Snake, Lyre()),
-        Pair(MiraculousType.Ladybug, Yoyo())
+        MiraculousType.Bee to SpinningTop(),
+        MiraculousType.Turtle to Shield(),
+        MiraculousType.Snake to Lyre(),
+        MiraculousType.Ladybug to Yoyo(),
+        MiraculousType.Horse to Horseshoe()
     )
 
     val BEE_VENOM = Venom()
@@ -153,13 +148,27 @@ object MiraculousMiracles : ModInitializer {
         QuiltTagKey.of(Registry.ITEM.key, Identifier(MOD_ID, miraculousType.toString().lowercase()), TagType.NORMAL)
     }
 
-    val SHELLTER_REPLACEABLE_TAG: TagKey<Block> =
-        QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "shellter_replaceable"), TagType.NORMAL)
+    val SAFELY_REPLACEABLE_TAG: TagKey<Block> =
+        QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "safely_replaceable"), TagType.NORMAL)
 
     val CRUCIBLE = Crucible()
     val CRUCIBLE_ENTITY = QuiltBlockEntityTypeBuilder.create(::CrucibleEntity, CRUCIBLE).build()
     val CRUCIBLE_ITEM = BlockItem(CRUCIBLE, itemSettingsOf(group = ITEM_GROUP))
     val METEORITE_POWDER = Item(itemSettingsOf(group = ITEM_GROUP, rarity = Rarity.UNCOMMON))
+
+    val VOYAGE_ITEM = VoyageItem()
+    val VOYAGE_BLOCK = VoyageBlock()
+    val VOYAGE_BLOCK_ENTITY: BlockEntityType<VoyageBlockEntity> =
+        QuiltBlockEntityTypeBuilder.create(::VoyageBlockEntity, VOYAGE_BLOCK).build()
+
+    val VOYAGE_ENTITY: EntityType<VoyageEntity> = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::VoyageEntity)
+        .setDimensions(
+            EntityDimensions(0.25f, 0.25f, true)
+        )
+        .maxChunkTrackingRange(4)
+        .trackingTickInterval(10)
+        .build()
+
 
     override fun onInitialize(mod: ModContainer) {
         val kwamiAttributes = AbstractKwami.createKwamiAttributes().build()
@@ -204,6 +213,11 @@ object MiraculousMiracles : ModInitializer {
             CRUCIBLE_ITEM withPath "crucible" toRegistry Registry.ITEM
             CRUCIBLE_ENTITY withPath "crucible_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
             METEORITE_POWDER withPath "meteorite_powder" toRegistry Registry.ITEM
+
+            VOYAGE_ITEM withPath "voyage" toRegistry Registry.ITEM
+            VOYAGE_BLOCK withPath "voyage" toRegistry Registry.BLOCK
+            VOYAGE_BLOCK_ENTITY withPath "voyage_block_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
+            VOYAGE_ENTITY withPath "voyage_entity" toRegistry Registry.ENTITY_TYPE
         }
 
         TradeOfferHelper.registerVillagerOffers(
@@ -256,6 +270,18 @@ object MiraculousMiracles : ModInitializer {
             if (chosenAbility !is MiraculousAbility) return@registerGlobalReceiver
 
             playerState.useAbility(chosenAbility, player, null)
+        }
+
+        ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.SET_VOYAGE_COORDS) { _, player, _, packetByteBuf, _ ->
+            val playerState = ServerState.getPlayerState(player)
+            val voyageNbt = playerState.usedAbilities[MiraculousAbility.Voyage] ?: return@registerGlobalReceiver
+            val (x, y, z) = packetByteBuf.readIntArray()
+
+            voyageNbt.putInt("x", x)
+            voyageNbt.putInt("y", y)
+            voyageNbt.putInt("z", z)
+
+            ServerState.getServerState(player.server).markDirty()
         }
 
         LivingEntityDeathCallback.EVENT.register { entity, _ ->

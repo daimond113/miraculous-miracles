@@ -10,6 +10,7 @@ import net.minecraft.block.entity.BlockEntityTicker
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.Items
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
@@ -18,13 +19,12 @@ import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.state.StateManager
 import net.minecraft.state.property.BooleanProperty
+import net.minecraft.state.property.Properties
 import net.minecraft.text.Text
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Hand
-import net.minecraft.util.Identifier
-import net.minecraft.util.function.BooleanBiFunction
+import net.minecraft.util.*
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
 import net.minecraft.util.shape.VoxelShape
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.BlockView
@@ -34,18 +34,50 @@ import java.util.*
 
 
 class Crucible :
-    BlockWithEntity(blockSettingsOf(material = Material.METAL, requiresTool = true, hardness = 5f, resistance = 6f, soundGroup = BlockSoundGroup.METAL, lootTableId = Identifier(MiraculousMiracles.MOD_ID, "blocks/crucible"))) {
+    BlockWithEntity(
+        blockSettingsOf(
+            material = Material.METAL,
+            requiresTool = true,
+            hardness = 5f,
+            resistance = 6f,
+            soundGroup = BlockSoundGroup.METAL,
+            lootTableId = Identifier(MiraculousMiracles.MOD_ID, "blocks/crucible")
+        )
+    ) {
     companion object {
         val FILLED: BooleanProperty = BooleanProperty.of("filled")
+        val FACING = Properties.HORIZONTAL_FACING
+    }
+
+    @Deprecated(
+        "overriding is fine", ReplaceWith(
+            "state.with(FACING, rotation.rotate(state.get(FACING)))",
+            "com.daimond113.miraculous_miracles.items.Crucible.Companion.FACING",
+            "com.daimond113.miraculous_miracles.items.Crucible.Companion.FACING"
+        )
+    )
+    override fun rotate(state: BlockState, rotation: BlockRotation): BlockState {
+        return state.with(FACING, rotation.rotate(state.get(FACING)))
+    }
+
+    @Deprecated(
+        "overriding is fine", ReplaceWith(
+            "state.rotate(mirror.getRotation(state.get(FACING)))",
+            "com.daimond113.miraculous_miracles.items.Crucible.Companion.FACING"
+        )
+    )
+    override fun mirror(state: BlockState, mirror: BlockMirror): BlockState {
+        return state.rotate(mirror.getRotation(state.get(FACING)))
     }
 
     init {
         defaultState = stateManager.defaultState
             .with(FILLED, false)
+            .with(FACING, Direction.NORTH)
     }
 
     override fun appendProperties(builder: StateManager.Builder<Block, BlockState>) {
-        builder.add(FILLED)
+        builder.add(FILLED, FACING)
     }
 
     override fun createBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
@@ -179,15 +211,23 @@ class Crucible :
         return ActionResult.PASS
     }
 
-    @Deprecated("")
+    @Deprecated(
+        "overriding is fine", ReplaceWith(
+            "VoxelShapes.cuboid(0.1875, 0.0, 0.1875, 0.8125, 0.875, 0.8125)",
+            "net.minecraft.util.shape.VoxelShapes"
+        )
+    )
     override fun getOutlineShape(
         state: BlockState?,
         view: BlockView?,
         pos: BlockPos?,
         context: ShapeContext?
     ): VoxelShape {
-        var shape = VoxelShapes.empty()
-        shape = VoxelShapes.combine(shape, VoxelShapes.cuboid(0.1875, 0.0, 0.1875, 0.8125, 0.875, 0.8125), BooleanBiFunction.OR)
-        return shape
+        return VoxelShapes.cuboid(0.1875, 0.0, 0.1875, 0.8125, 0.875, 0.8125)
+    }
+
+    override fun getPlacementState(ctx: ItemPlacementContext): BlockState {
+        return super.getPlacementState(ctx)!!
+            .with(FACING, ctx.playerFacing.opposite)
     }
 }

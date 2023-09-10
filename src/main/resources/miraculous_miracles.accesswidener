@@ -1,0 +1,4 @@
+accessWidener v2 named
+
+accessible field net/minecraft/server/network/ServerPlayerEntity inTeleportationState Z
+accessible field net/minecraft/entity/Entity netherPortalCooldown I

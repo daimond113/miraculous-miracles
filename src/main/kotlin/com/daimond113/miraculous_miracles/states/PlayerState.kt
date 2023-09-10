@@ -1,10 +1,7 @@
 package com.daimond113.miraculous_miracles.states
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
-import com.daimond113.miraculous_miracles.core.AbstractMiraculous
-import com.daimond113.miraculous_miracles.core.MiraculousAbility
-import com.daimond113.miraculous_miracles.core.MiraculousType
-import com.daimond113.miraculous_miracles.core.NetworkMessages
+import com.daimond113.miraculous_miracles.core.*
 import com.daimond113.miraculous_miracles.effects.Reasons
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.item.ItemStack
@@ -69,30 +66,20 @@ class PlayerState {
         if (asDirty) ServerState.getServerState(player.server).markDirty()
     }
 
-    fun hasUsedAbility(ability: MiraculousAbility, ignoreToggled: Boolean = false): Boolean {
-        val abilityNbt = usedAbilities[ability]
-        if (!ignoreToggled && abilityNbt != null && ability.isToggleable && abilityNbt.getBoolean("hasBeenUsed")) {
-            return false
-        }
-        return abilityNbt != null
-    }
-
-
     fun useAbility(ability: MiraculousAbility, player: ServerPlayerEntity, additionalParam: Any?) {
-        val playerState = ServerState.getPlayerState(player)
+        if (!activeMiraculous.contains(ability.miraculousType)) return
 
-        if (!playerState.activeMiraculous.contains(ability.miraculousType)) return
+        val serverState = ServerState.getServerState(player.server)
 
-        if (!playerState.hasUsedAbility(ability, true)) {
-            playerState.usedAbilities[ability] = NbtCompound().apply {
+        val nbtCompound = usedAbilities.getOrPut(ability) {
+            serverState.markDirty()
+
+            NbtCompound().apply {
                 if (ability.isToggleable) {
                     putBoolean("hasBeenUsed", false)
                 }
             }
-            ServerState.getServerState(player.server).markDirty()
         }
-
-        val nbtCompound = playerState.usedAbilities[ability]!!
 
         val hasBeenUsed = if (ability.isToggleable)
             run {
@@ -105,31 +92,35 @@ class PlayerState {
 
         if (!ability.ignoresMinutes && player.hasStatusEffect(MiraculousMiracles.TRANSFORMATION_TIME_LEFT_EFFECT) && !hasBeenUsed) return
 
-        if (ability.givesMinutesLeft && (playerState.usedAbilities.size >= MiraculousAbility.values()
-                .filter { playerState.activeMiraculous.contains(it.miraculousType) }.size)
-        ) {
-            player.addStatusEffect(
-                StatusEffectInstance(
-                    MiraculousMiracles.TRANSFORMATION_TIME_LEFT_EFFECT,
-                    6000,
-                    0,
-                    false,
-                    false,
-                    true
+        when (ability.execute(player, nbtCompound, hasBeenUsed, additionalParam)) {
+            AbilityResult.Success -> {
+                sendMessageFrom(
+                    Text.translatable(
+                        "text.miraculous_miracles.${
+                            ability.toString().lowercase()
+                        }${if (ability.isToggleable) if (hasBeenUsed) ".deinitialize" else ".initialize" else ""}.shout"
+                    ),
+                    player
                 )
-            )
+
+                if (ability.givesMinutesLeft && (usedAbilities.size >= MiraculousAbility.values()
+                        .filter { activeMiraculous.contains(it.miraculousType) }.size)
+                ) {
+                    player.addStatusEffect(
+                        StatusEffectInstance(
+                            MiraculousMiracles.TRANSFORMATION_TIME_LEFT_EFFECT,
+                            6000,
+                            0,
+                            false,
+                            false,
+                            true
+                        )
+                    )
+                }
+            }
+
+            else -> {}
         }
-
-        sendMessageFrom(
-            Text.translatable(
-                "text.miraculous_miracles.${
-                    ability.toString().lowercase()
-                }${if (ability.isToggleable) if (hasBeenUsed) ".deinitialize" else ".initialize" else ""}.shout"
-            ),
-            player
-        )
-
-        ability.execute(player, nbtCompound, hasBeenUsed, additionalParam)
     }
 
     fun detransform(player: ServerPlayerEntity, miraculousTypes: Set<MiraculousType>, forced: Boolean = false) {
@@ -167,7 +158,10 @@ class PlayerState {
             val nbt = activeMiraculous[miraculousType]
             activeMiraculous.remove(miraculousType)
             usedAbilities.entries.removeIf { (ability, nbt) ->
-                if (ability.miraculousType == miraculousType && ability.isToggleable && nbt.getBoolean("hasBeenUsed")) {
+                if (ability.miraculousType == miraculousType && ability.isToggleable && nbt.getBoolean(
+                        "hasBeenUsed"
+                    )
+                ) {
                     ability.execute(player, nbt, true, null)
                 }
 

@@ -19,14 +19,17 @@ class Shield : AbstractWeapon("shield") {
 
         if (!world.isClient) {
             val playerState = ServerState.getPlayerState(user as ServerPlayerEntity)
-            if (playerState.hasUsedAbility(MiraculousAbility.Shellter, true)) {
+
+            if (playerState.usedAbilities[MiraculousAbility.Shellter] != null) {
                 if (!playerState.usedAbilities[MiraculousAbility.Shellter]!!.getBoolean("hasBeenUsed"))
                     return TypedActionResult.success(itemStack, false)
+
                 playerState.useAbility(MiraculousAbility.Shellter, user, null)
             } else {
                 val shellterEntity = ShellterEntity(world, user)
                 shellterEntity.setItem(itemStack)
                 shellterEntity.setProperties(user, user.pitch, user.yaw, 0.0f, 1.5f, 1.0f)
+
                 world.spawnEntity(shellterEntity)
             }
         }

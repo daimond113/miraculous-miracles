@@ -10,6 +10,8 @@ loom = "1.+"
 
 patchouli = "1.19.2-77-FABRIC"
 
+owo = "0.9.3+1.19"
+
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 qfapi = { module = "org.quiltmc.quilted-fabric-api:quilted-fabric-api", version.ref = "qfapi" }
@@ -21,6 +23,9 @@ quilt_loader = { module = "org.quiltmc:quilt-loader", version.ref = "loader" }
 quilt_mappings = { module = "org.quiltmc:quilt-mappings", version.ref = "mappings" }
 
 patchouli = { module = "vazkii.patchouli:Patchouli", version.ref = "patchouli" }
+
+owo = { module = "io.wispforest:owo-lib", version.ref = "owo" }
+sentinel = { module = "io.wispforest:owo-sentinel", version.ref = "owo" }
 
 [bundles]
 quilted_fabric_api = ["qfapi", "qfapi_deprecated"]

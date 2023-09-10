@@ -1,4 +1,4 @@
-package com.daimond113.miraculous_miracles.radial
+package com.daimond113.miraculous_miracles.ui
 
 import kotlin.math.sqrt
 

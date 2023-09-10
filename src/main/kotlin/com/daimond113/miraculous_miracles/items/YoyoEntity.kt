@@ -18,7 +18,7 @@ import net.minecraft.world.World
 class YoyoEntity : ThrownItemEntity {
     constructor(entityType: EntityType<out YoyoEntity?>, world: World) : super(entityType, world)
 
-    constructor(world: World, owner: LivingEntity) : super(MiraculousMiracles.BEE_SPINNING_TOP_ENTITY, owner, world)
+    constructor(world: World, owner: LivingEntity) : super(MiraculousMiracles.LADYBUG_YOYO_ENTITY, owner, world)
 
     override fun getDefaultItem(): Item {
         return MiraculousMiracles.MIRACULOUS_WEAPONS[MiraculousType.Ladybug]!!

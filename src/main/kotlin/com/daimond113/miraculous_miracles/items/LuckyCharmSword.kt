@@ -6,6 +6,7 @@ import com.daimond113.miraculous_miracles.core.itemSettingsOf
 import net.minecraft.item.ItemStack
 import net.minecraft.item.SwordItem
 import net.minecraft.util.Rarity
+
 class LuckyCharmSword : SwordItem(
     LuckyCharmWeaponMaterial,
     4,

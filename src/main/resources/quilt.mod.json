@@ -51,5 +51,6 @@
 				"optional": true
 			}
 		]
-	}
+	},
+	"access_widener": "miraculous_miracles.accesswidener"
 }

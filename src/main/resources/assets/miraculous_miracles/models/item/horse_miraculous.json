@@ -1,0 +1,16 @@
+{
+  "overrides": [
+    {
+      "predicate": {
+        "miraculous_miracles:is_charged": 0
+      },
+      "model": "miraculous_miracles:item/horse_miraculous_camouflaged"
+    },
+    {
+      "predicate": {
+        "miraculous_miracles:is_charged": 1
+      },
+      "model": "miraculous_miracles:item/horse_miraculous_charged"
+    }
+  ]
+}

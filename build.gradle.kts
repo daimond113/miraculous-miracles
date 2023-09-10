@@ -16,6 +16,10 @@ base.archivesName.set(archives_base_name)
 
 val javaVersion = 17
 
+loom {
+	accessWidenerPath.set(file("src/main/resources/miraculous_miracles.accesswidener"))
+}
+
 repositories {
 	// Add repositories to retrieve artifacts from in here.
 	// You should only use this when depending on other mods because
@@ -26,6 +30,11 @@ repositories {
 	maven {
 		name = "Patchouli"
 		url = uri("https://maven.blamejared.com")
+	}
+
+	maven {
+		name = "OwO"
+		url = uri("https://maven.wispforest.io")
 	}
 }
 
@@ -60,6 +69,9 @@ dependencies {
 	modImplementation(libs.qkl)
 
 	modImplementation(libs.patchouli)
+
+	modImplementation(libs.owo)
+	include(libs.sentinel)
 }
 
 tasks {
