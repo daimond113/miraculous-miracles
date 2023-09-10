@@ -49,6 +49,10 @@
 			{
 				"id": "patchouli",
 				"optional": true
+			},
+			{
+				"id": "owo",
+				"versions": "0.9.3"
 			}
 		]
 	},
