@@ -131,13 +131,15 @@ class PortalItemEntity : ThrownItemEntity {
         super.onCollision(hitResult)
 
         if (!world.isClient && !this.isRemoved && destination != null) {
-            val destinationWorld = if (dimension != null) server!!.getWorld(RegistryKey.of(Registry.WORLD_KEY, dimension)) ?: run {
-                MiraculousMiracles.LOGGER.warn("Couldn't get portal destination world! ID: ${dimension}. Defaulting to entity's current world.")
-                world
-            } else world
+            val destinationWorld =
+                if (dimension != null) server!!.getWorld(RegistryKey.of(Registry.WORLD_KEY, dimension)) ?: run {
+                    MiraculousMiracles.LOGGER.warn("Couldn't get portal destination world! ID: ${dimension}. Defaulting to entity's current world.")
+                    world
+                } else world
 
             val startPos = findSafePortalPos(blockPos, world)
-            val destPos = findSafePortalPos(BlockPos(destination!!.x, destination!!.y, destination!!.z), destinationWorld)
+            val destPos =
+                findSafePortalPos(BlockPos(destination!!.x, destination!!.y, destination!!.z), destinationWorld)
 
             if (startPos != null && destPos != null) {
                 setPortalBlockAt(startPos, destPos, world)

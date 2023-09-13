@@ -1,9 +1,9 @@
 package com.daimond113.miraculous_miracles
 
+import com.daimond113.miraculous_miracles.content.*
 import com.daimond113.miraculous_miracles.core.*
 import com.daimond113.miraculous_miracles.core.ArmorMaterials
 import com.daimond113.miraculous_miracles.effects.TransformationTimeLeftEffect
-import com.daimond113.miraculous_miracles.content.*
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwami
 import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwami
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwami
@@ -14,7 +14,6 @@ import com.daimond113.miraculous_miracles.miraculouses.*
 import com.daimond113.miraculous_miracles.states.PlayerState
 import com.daimond113.miraculous_miracles.states.ServerState
 import net.minecraft.block.Block
-import net.minecraft.block.Blocks
 import net.minecraft.block.Material
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.entity.EntityDimensions
@@ -163,7 +162,8 @@ object MiraculousMiracles : ModInitializer {
         QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "safely_replaceable"), TagType.NORMAL)
 
     private val CRUCIBLE = Crucible()
-    val CRUCIBLE_ENTITY: BlockEntityType<CrucibleEntity> = QuiltBlockEntityTypeBuilder.create(::CrucibleEntity, CRUCIBLE).build()
+    val CRUCIBLE_ENTITY: BlockEntityType<CrucibleEntity> =
+        QuiltBlockEntityTypeBuilder.create(::CrucibleEntity, CRUCIBLE).build()
     private val CRUCIBLE_ITEM = BlockItem(CRUCIBLE, itemSettingsOf(group = ITEM_GROUP))
     val METEORITE_POWDER = Item(itemSettingsOf(group = ITEM_GROUP, rarity = Rarity.UNCOMMON))
 
@@ -193,7 +193,8 @@ object MiraculousMiracles : ModInitializer {
         .trackingTickInterval(10)
         .build()
 
-    val BURROW_DIMENSION_BLOCK = Block(blockSettingsOf(material = Material.STONE, luminance = 15, hardness = -1.0f, resistance = 3600000.0f))
+    val BURROW_DIMENSION_BLOCK =
+        Block(blockSettingsOf(material = Material.STONE, luminance = 15, hardness = -1.0f, resistance = 3600000.0f))
     val BURROW_WORLD_KEY: RegistryKey<World> = RegistryKey.of(Registry.WORLD_KEY, Identifier(MOD_ID, "burrow"))
 
     override fun onInitialize(mod: ModContainer) {
@@ -318,7 +319,9 @@ object MiraculousMiracles : ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.SET_PORTAL_COORDS) { _, player, _, packetByteBuf, _ ->
             val isBurrow = packetByteBuf.readBoolean()
             val playerState = ServerState.getPlayerState(player)
-            val abilityNbt = playerState.usedAbilities[if (isBurrow) MiraculousAbility.Burrow else MiraculousAbility.Voyage] ?: return@registerGlobalReceiver
+            val abilityNbt =
+                playerState.usedAbilities[if (isBurrow) MiraculousAbility.Burrow else MiraculousAbility.Voyage]
+                    ?: return@registerGlobalReceiver
             val (x, y, z) = packetByteBuf.readIntArray(3)
 
             abilityNbt.putInt("x", x)

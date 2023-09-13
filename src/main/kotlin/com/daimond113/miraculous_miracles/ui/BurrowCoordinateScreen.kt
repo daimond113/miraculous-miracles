@@ -34,7 +34,12 @@ class BurrowCoordinateScreen : BaseUIModelScreen<FlowLayout>(
         var currentDimension = MiraculousMiraclesClient.allDimensions.first()
 
         fun updateCurrentDimension(dimension: Identifier) {
-            currentLabel?.text(Text.literal("Current: ").append(dimensionNames[dimension]))
+            currentLabel?.text(
+                Text.translatable(
+                    "text.miraculous_miracles.burrow.current_dimension",
+                    dimensionNames[dimension]
+                )
+            )
             currentDimension = dimension
         }
         updateCurrentDimension(currentDimension)

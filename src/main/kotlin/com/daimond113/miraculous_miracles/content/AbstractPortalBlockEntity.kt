@@ -7,7 +7,11 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 
-abstract class AbstractPortalBlockEntity(entityType: BlockEntityType<out AbstractPortalBlockEntity>, pos: BlockPos, state: BlockState?) : BlockEntity(entityType, pos, state) {
+abstract class AbstractPortalBlockEntity(
+    entityType: BlockEntityType<out AbstractPortalBlockEntity>,
+    pos: BlockPos,
+    state: BlockState?
+) : BlockEntity(entityType, pos, state) {
     var destination: BlockPos? = null
     var dimension: Identifier? = null
 

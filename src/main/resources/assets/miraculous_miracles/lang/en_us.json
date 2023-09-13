@@ -97,6 +97,6 @@
   "item.miraculous_miracles.rabbit_feet": "Rabbit Boots",
   "screen.miraculous_miracles.burrow_coords": "Burrow Coordinates",
   "text.miraculous_miracles.burrow.dimension": "Dimension",
-  "text.miraculous_miracles.burrow.current_dimension": "Current: ",
+  "text.miraculous_miracles.burrow.current_dimension": "Current: %s",
   "block.miraculous_miracles.burrow_dimension_block": "Burrow Dimension Block"
 }
