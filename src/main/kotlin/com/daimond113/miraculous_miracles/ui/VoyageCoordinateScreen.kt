@@ -23,11 +23,10 @@ class VoyageCoordinateScreen : BaseUIModelScreen<FlowLayout>(
 
         rootComponent.childById(ButtonComponent::class.java, "submit")!!
             .onPress {
-                val packetBuf = PacketByteBufs.create()
-                packetBuf.writeIntArray(coordinateFields.map { it.text.toIntOrNull() ?: 0 }.toIntArray())
-
-                ClientPlayNetworking.send(NetworkMessages.SET_VOYAGE_COORDS, packetBuf)
-
+                ClientPlayNetworking.send(NetworkMessages.SET_PORTAL_COORDS, PacketByteBufs.create().apply {
+                    writeBoolean(false)
+                    writeIntArray(coordinateFields.map { it.text.toIntOrNull() ?: 0 }.toIntArray())
+                })
                 closeScreen()
             }
     }

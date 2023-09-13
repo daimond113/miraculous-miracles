@@ -1,7 +1,7 @@
 package com.daimond113.miraculous_miracles.core
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
-import com.daimond113.miraculous_miracles.items.VoyageItem
+import com.daimond113.miraculous_miracles.content.PortalItem
 import com.daimond113.miraculous_miracles.states.PlayerState
 import net.minecraft.block.Blocks
 import net.minecraft.enchantment.Enchantments
@@ -130,14 +130,23 @@ enum class MiraculousAbility(
         MiraculousType.Horse,
         { player, nbt, _, _ ->
             if (!nbt.contains("x") || player.isSneaking) {
-                ServerPlayNetworking.send(player, NetworkMessages.REQUEST_SET_VOYAGE_COORDS, PacketByteBufs.empty())
+                ServerPlayNetworking.send(
+                    player,
+                    NetworkMessages.REQUEST_SET_PORTAL_COORDS,
+                    PacketByteBufs.create().apply {
+                        writeBoolean(false)
+                    })
                 AbilityResult.Fail
             } else {
                 PlayerState.giveItemStack(
                     ItemStack(MiraculousMiracles.VOYAGE_ITEM).apply {
                         addEnchantment(Enchantments.VANISHING_CURSE, 1)
 
-                        VoyageItem.setDestination(this, Triple(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z")))
+                        PortalItem.setDestination(
+                            this,
+                            BlockPos(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z")),
+                            null
+                        )
                     },
                     player
                 )
@@ -145,5 +154,61 @@ enum class MiraculousAbility(
                 AbilityResult.Success
             }
         },
+    ),
+
+    @Suppress("unused")
+    Burrow(
+        5,
+        MiraculousType.Rabbit,
+        { player, nbt, _, _ ->
+            if (player.world.registryKey != MiraculousMiracles.BURROW_WORLD_KEY) {
+                if (!player.inventory.containsAny(setOf(MiraculousMiracles.BURROW_ITEM))) {
+                    PlayerState.giveItemStack(
+                        ItemStack(MiraculousMiracles.BURROW_ITEM).apply {
+                            addEnchantment(Enchantments.VANISHING_CURSE, 1)
+
+                            PortalItem.setDestination(
+                                this, BlockPos(7, 1, 7),
+                                MiraculousMiracles.BURROW_WORLD_KEY.value
+                            )
+                        },
+                        player
+                    )
+
+                    AbilityResult.Success
+                } else {
+                    AbilityResult.Fail
+                }
+            } else if (!nbt.contains("x") || player.isSneaking) {
+                ServerPlayNetworking.send(
+                    player,
+                    NetworkMessages.REQUEST_SET_PORTAL_COORDS,
+                    PacketByteBufs.create().apply {
+                        writeBoolean(true)
+                    })
+
+                AbilityResult.Fail
+            } else {
+                if (!player.inventory.containsAny(setOf(MiraculousMiracles.BURROW_ITEM))) {
+                    PlayerState.giveItemStack(
+                        ItemStack(MiraculousMiracles.BURROW_ITEM).apply {
+                            addEnchantment(Enchantments.VANISHING_CURSE, 1)
+
+                            PortalItem.setDestination(
+                                this, BlockPos(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z")),
+                                net.minecraft.util.Identifier(nbt.getString("dimension"))
+                            )
+                        },
+                        player
+                    )
+
+                    AbilityResult.Success
+                } else {
+                    AbilityResult.Fail
+                }
+            }
+        },
+        givesMinutesLeft = false,
+        ignoresMinutes = true,
     );
 }

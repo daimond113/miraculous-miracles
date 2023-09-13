@@ -4,18 +4,21 @@ import com.daimond113.miraculous_miracles.core.AbstractMiraculous
 import com.daimond113.miraculous_miracles.core.MiraculousAbility
 import com.daimond113.miraculous_miracles.core.MiraculousType
 import com.daimond113.miraculous_miracles.core.NetworkMessages
-import com.daimond113.miraculous_miracles.items.CrucibleRenderer
+import com.daimond113.miraculous_miracles.content.CrucibleRenderer
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiRenderer
+import com.daimond113.miraculous_miracles.kwamis.rabbit.RabbitKwamiModel
+import com.daimond113.miraculous_miracles.kwamis.rabbit.RabbitKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiRenderer
 import com.daimond113.miraculous_miracles.states.PlayerState
+import com.daimond113.miraculous_miracles.ui.BurrowCoordinateScreen
 import com.daimond113.miraculous_miracles.ui.RadialAction
 import com.daimond113.miraculous_miracles.ui.RadialScreen
 import com.daimond113.miraculous_miracles.ui.VoyageCoordinateScreen
@@ -50,8 +53,10 @@ object MiraculousMiraclesClient : ClientModInitializer {
     val MODEL_SNAKE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "snake_kwami"), "main")
     val MODEL_LADYBUG_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "ladybug_kwami"), "main")
     val MODEL_HORSE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "horse_kwami"), "main")
+    val MODEL_RABBIT_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "rabbit_kwami"), "main")
 
     private var activeMiraculous: Set<MiraculousType> = setOf()
+    var allDimensions: MutableSet<Identifier> = mutableSetOf()
 
     override fun onInitializeClient(mod: ModContainer) {
         for (miraculous in MiraculousMiracles.MIRACULOUSES.values) {
@@ -90,10 +95,17 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.BURROW_ENTITY) { context: EntityRendererFactory.Context ->
+            FlyingItemEntityRenderer(
+                context
+            )
+        }
+
         BlockEntityRendererFactories.register(MiraculousMiracles.CRUCIBLE_ENTITY) { CrucibleRenderer() }
 
         BlockRenderLayerMap.put(RenderLayer.getTranslucent(), MiraculousMiracles.TURTLE_SHELLTER_BLOCK)
         BlockRenderLayerMap.put(RenderLayer.getTranslucent(), MiraculousMiracles.VOYAGE_BLOCK)
+        BlockRenderLayerMap.put(RenderLayer.getTranslucent(), MiraculousMiracles.BURROW_BLOCK)
 
         EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Bee]) { context ->
             BeeKwamiRenderer(
@@ -125,11 +137,18 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Rabbit]) { context ->
+            RabbitKwamiRenderer(
+                context
+            )
+        }
+
         EntityModelLayerRegistry.registerModelLayer(MODEL_BEE_KWAMI_LAYER, BeeKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_TURTLE_KWAMI_LAYER, TurtleKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_SNAKE_KWAMI_LAYER, SnakeKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_LADYBUG_KWAMI_LAYER, LadybugKwamiModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_HORSE_KWAMI_LAYER, HorseKwamiModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(MODEL_RABBIT_KWAMI_LAYER, RabbitKwamiModel::getTexturedModelData);
 
 
         val detransformKey = KeyBindingHelper.registerKeyBinding(
@@ -222,11 +241,20 @@ object MiraculousMiraclesClient : ClientModInitializer {
             }
         }
 
-        ClientPlayNetworking.registerGlobalReceiver(NetworkMessages.REQUEST_SET_VOYAGE_COORDS) { client, _, _, _ ->
+        ClientPlayNetworking.registerGlobalReceiver(NetworkMessages.REQUEST_SET_PORTAL_COORDS) { client, _, packetByteBuf, _ ->
+            val isBurrow = packetByteBuf.readBoolean()
+
             client.execute {
                 if (client.currentScreen != null) return@execute
 
-                client.setScreen(VoyageCoordinateScreen())
+                client.setScreen(if (isBurrow) BurrowCoordinateScreen() else VoyageCoordinateScreen())
+            }
+        }
+
+        ClientPlayNetworking.registerGlobalReceiver(NetworkMessages.SET_DIMENSIONS) { _, _, packetBuf, _ ->
+            allDimensions.clear()
+            for (int in 0 until packetBuf.readInt()) {
+                allDimensions.add(packetBuf.readIdentifier())
             }
         }
     }

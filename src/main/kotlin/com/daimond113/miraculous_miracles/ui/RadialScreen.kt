@@ -12,15 +12,15 @@ import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
-import net.minecraft.util.Identifier
+import net.minecraft.util.math.Vec2f
 import org.lwjgl.glfw.GLFW
+import org.quiltmc.qkl.library.math.minus
 import kotlin.math.*
 
 class RadialScreen(screenName: String, private val key: KeyBind, private val actions: List<RadialAction>) :
     Screen(Text.translatable(screenName)) {
-
-    private var crosshairX = 0
-    private var crosshairY = 0
+    private var cursorX = 0
+    private var cursorY = 0
     private var focusedAction = 0
     private var prevFocusedAction = -1
     private val actionAmount = actions.indices.last + 1
@@ -67,50 +67,45 @@ class RadialScreen(screenName: String, private val key: KeyBind, private val act
 
     override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
         // CURSOR
-        drawTexture(matrices, GUI_ICONS_TEXTURE, crosshairX - 8, crosshairY - 8, 0, 0, 15, 15, true)
+        drawCursor(matrices, cursorX - 8, cursorY - 8)
 
         val radius = (min(height.toDouble(), width.toDouble()) / 2 * 0.5).toInt()
 
-        drawItems(matrices, radius)
+        drawActions(matrices, radius)
 
         matrices.scale(2f, 2f, 1f)
 
-        var mousePosition = (Vector2(mouseX.toFloat(), mouseY.toFloat()) - Vector2(width / 2f, height / 2f)).normalized
-
         val distanceFromCenter = hypot((width / 2 - mouseX).toDouble(), (height / 2 - mouseY).toDouble())
 
-        mousePosition *= if (distanceFromCenter < radius) distanceFromCenter.toFloat() else radius.toFloat()
+        val mousePosition = Vec2f(mouseX.toFloat(), mouseY.toFloat())
+            .minus(Vec2f(width / 2f, height / 2f))
+            .normalize()
+            .multiply(if (distanceFromCenter < radius) distanceFromCenter.toFloat() else radius.toFloat())
 
-        crosshairX = mousePosition.x.toInt() + width / 2
-        crosshairY = mousePosition.y.toInt() + height / 2
+        cursorX = mousePosition.x.toInt() + width / 2
+        cursorY = mousePosition.y.toInt() + height / 2
 
         super.render(matrices, mouseX, mouseY, delta)
     }
 
-    private fun drawTexture(
+    private fun drawCursor(
         matrices: MatrixStack,
-        id: Identifier,
         x: Int,
-        y: Int,
-        u: Int,
-        v: Int,
-        w: Int,
-        h: Int,
-        invert: Boolean
+        y: Int
     ) {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         RenderSystem.setShader { GameRenderer.getPositionTexShader() }
-        RenderSystem.setShaderTexture(0, id)
+        RenderSystem.setShaderTexture(0, GUI_ICONS_TEXTURE)
         RenderSystem.enableBlend()
-        if (invert) RenderSystem.blendFuncSeparate(
+        RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
             GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ZERO
         )
-        drawTexture(matrices, x, y, u, v, w, h)
+        drawTexture(matrices, x, y, 0, 0, 15, 15)
     }
 
-    private fun drawItems(matrix: MatrixStack, radius: Int) {
+    private fun drawActions(matrix: MatrixStack, radius: Int) {
         var lowestDistance = Double.MAX_VALUE
 
         val actionsData = actions.indices.map { actionIndex ->
@@ -118,7 +113,7 @@ class RadialScreen(screenName: String, private val key: KeyBind, private val act
             val x = Math.round(radius * cos(s) + width / 2) - 8f
             val y = (Math.round(radius * sin(s) + height / 2) - 8f) + textRenderer.fontHeight
 
-            val mouseDistance = hypot((x - crosshairX).toDouble(), (y - crosshairY).toDouble())
+            val mouseDistance = hypot((x - cursorX).toDouble(), (y - cursorY).toDouble())
 
             if (mouseDistance < lowestDistance) {
                 lowestDistance = mouseDistance
@@ -127,9 +122,6 @@ class RadialScreen(screenName: String, private val key: KeyBind, private val act
 
             actionIndex to Pair(x, y)
         }
-
-//        MiraculousMiracles.LOGGER.info("MouseX: $mouseX MouseY: $mouseY, CrosshairX: $crosshairX CrosshairY: $crosshairY")
-//        MiraculousMiracles.LOGGER.info("Lowest: $lowestDistance")
 
         if (lowestDistance > 20.0) {
             focusedAction = -1

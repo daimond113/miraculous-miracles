@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "miraculous_miracles:block/burrow_dimension_block"
+  }
+}

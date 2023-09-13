@@ -12,6 +12,9 @@
   "block.miraculous_miracles.crucible": "Crucible",
   "item.miraculous_miracles.meteorite_powder": "Meteorite Powder",
   "text.miraculous_miracles.repair_miraculous": "Miraculous, repair yourself!",
+  "text.miraculous_miracles.x_coordinate": "X: ",
+  "text.miraculous_miracles.y_coordinate": "Y: ",
+  "text.miraculous_miracles.z_coordinate": "Z: ",
 
   "item.miraculous_miracles.bee_miraculous": "Bee Miraculous",
   "entity.miraculous_miracles.bee_kwami": "Pollen",
@@ -79,7 +82,21 @@
   "item.miraculous_miracles.horse_legs": "Horse Leggings",
   "item.miraculous_miracles.horse_feet": "Horse Boots",
   "screen.miraculous_miracles.voyage_coords": "Voyage Coordinates",
-  "text.miraculous_miracles.voyage.x_coordinate": "X: ",
-  "text.miraculous_miracles.voyage.y_coordinate": "Y: ",
-  "text.miraculous_miracles.voyage.z_coordinate": "Z: "
+
+  "item.miraculous_miracles.rabbit_miraculous": "Rabbit Miraculous",
+  "entity.miraculous_miracles.rabbit_kwami": "Fluff",
+  "text.miraculous_miracles.rabbit.transformation": "Fluff, Clockwise!",
+  "text.miraculous_miracles.rabbit.detransformation": "Counter-Clockwise!",
+  "ability.miraculous_miracles.burrow": "Burrow",
+  "text.miraculous_miracles.burrow.shout": "Burrow!",
+  "item.miraculous_miracles.burrow": "Burrow",
+  "item.miraculous_miracles.rabbit_umbrella": "Umbrella",
+  "item.miraculous_miracles.rabbit_head": "Rabbit Helmet",
+  "item.miraculous_miracles.rabbit_chest": "Rabbit Chestplate",
+  "item.miraculous_miracles.rabbit_legs": "Rabbit Leggings",
+  "item.miraculous_miracles.rabbit_feet": "Rabbit Boots",
+  "screen.miraculous_miracles.burrow_coords": "Burrow Coordinates",
+  "text.miraculous_miracles.burrow.dimension": "Dimension",
+  "text.miraculous_miracles.burrow.current_dimension": "Current: ",
+  "block.miraculous_miracles.burrow_dimension_block": "Burrow Dimension Block"
 }

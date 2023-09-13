@@ -13,7 +13,8 @@ enum class ArmorMaterials(val miraculousType: MiraculousType) : ArmorMaterial {
     Turtle(MiraculousType.Turtle),
     Snake(MiraculousType.Snake),
     Ladybug(MiraculousType.Ladybug),
-    Horse(MiraculousType.Horse);
+    Horse(MiraculousType.Horse),
+    Rabbit(MiraculousType.Rabbit);
 
     private val baseDurability = arrayOf(13, 15, 16, 11);
     private val protectionValues = arrayOf(3, 6, 8, 3);

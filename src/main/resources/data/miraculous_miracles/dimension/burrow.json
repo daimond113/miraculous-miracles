@@ -1,0 +1,11 @@
+{
+  "type": "miraculous_miracles:burrow_type",
+  "generator": {
+    "type": "miraculous_miracles:burrow",
+    "custom_bool": true,
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:plains"
+    }
+  }
+}

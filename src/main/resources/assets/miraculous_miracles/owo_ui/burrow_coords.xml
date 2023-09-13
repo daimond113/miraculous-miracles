@@ -1,12 +1,12 @@
 <owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.19/owo-ui.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20/owo-ui.xsd">
     <components>
         <flow-layout direction="vertical">
             <children>
                 <flow-layout direction="vertical">
                     <children>
                         <label>
-                            <text translate="true">screen.miraculous_miracles.voyage_coords</text>
+                            <text translate="true">screen.miraculous_miracles.burrow_coords</text>
 
                             <margins>
                                 <bottom>10</bottom>
@@ -100,6 +100,35 @@
                             </margins>
                         </flow-layout>
 
+                        <collapsible expanded="true">
+                            <text translate="true">text.miraculous_miracles.burrow.dimension</text>
+
+                            <horizontal-alignment>left</horizontal-alignment>
+
+                            <children>
+                                <label id="current-dimension">
+                                    <margins>
+                                        <bottom>5</bottom>
+                                    </margins>
+                                </label>
+
+                                <scroll direction="vertical">
+                                    <flow-layout direction="vertical" id="dimension-buttons">
+                                        <children>
+                                        </children>
+                                    </flow-layout>
+
+                                    <sizing>
+                                        <vertical method="fixed">55</vertical>
+                                    </sizing>
+                                </scroll>
+                            </children>
+
+                            <margins>
+                                <bottom>10</bottom>
+                            </margins>
+                        </collapsible>
+
                         <button id="submit">
                             <text>✔</text>
                         </button>
@@ -122,7 +151,7 @@
             <horizontal-alignment>center</horizontal-alignment>
 
             <surface>
-                <vanilla-translucent />
+                <vanilla-translucent/>
             </surface>
         </flow-layout>
     </components>

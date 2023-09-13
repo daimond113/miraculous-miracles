@@ -3,16 +3,19 @@ package com.daimond113.miraculous_miracles
 import com.daimond113.miraculous_miracles.core.*
 import com.daimond113.miraculous_miracles.core.ArmorMaterials
 import com.daimond113.miraculous_miracles.effects.TransformationTimeLeftEffect
-import com.daimond113.miraculous_miracles.items.*
+import com.daimond113.miraculous_miracles.content.*
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwami
 import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwami
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwami
+import com.daimond113.miraculous_miracles.kwamis.rabbit.RabbitKwami
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwami
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwami
 import com.daimond113.miraculous_miracles.miraculouses.*
 import com.daimond113.miraculous_miracles.states.PlayerState
 import com.daimond113.miraculous_miracles.states.ServerState
 import net.minecraft.block.Block
+import net.minecraft.block.Blocks
+import net.minecraft.block.Material
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.entity.EntityDimensions
 import net.minecraft.entity.EntityType
@@ -25,15 +28,19 @@ import net.minecraft.tag.TagKey
 import net.minecraft.util.Identifier
 import net.minecraft.util.Rarity
 import net.minecraft.util.registry.Registry
+import net.minecraft.util.registry.RegistryKey
 import net.minecraft.village.TradeOffer
 import net.minecraft.village.VillagerProfession
+import net.minecraft.world.World
 import org.quiltmc.loader.api.ModContainer
+import org.quiltmc.qkl.library.blocks.blockSettingsOf
 import org.quiltmc.qkl.library.items.itemGroupOf
 import org.quiltmc.qkl.library.registry.registryScope
 import org.quiltmc.qsl.base.api.entrypoint.ModInitializer
 import org.quiltmc.qsl.block.entity.api.QuiltBlockEntityTypeBuilder
 import org.quiltmc.qsl.entity.api.QuiltEntityTypeBuilder
 import org.quiltmc.qsl.entity_events.api.LivingEntityDeathCallback
+import org.quiltmc.qsl.networking.api.PacketByteBufs
 import org.quiltmc.qsl.networking.api.ServerPlayConnectionEvents
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking
 import org.quiltmc.qsl.tag.api.QuiltTagKey
@@ -64,7 +71,8 @@ object MiraculousMiracles : ModInitializer {
             TurtleMiraculous(),
             SnakeMiraculous(),
             LadybugMiraculous(),
-            HorseMiraculous()
+            HorseMiraculous(),
+            RabbitMiraculous()
         )) {
             map[miraculousInstance.miraculousType] = miraculousInstance
         }
@@ -82,7 +90,9 @@ object MiraculousMiracles : ModInitializer {
         MiraculousType.Ladybug to
             QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::LadybugKwami).setDimensions(KWAMI_DIMENSIONS).build(),
         MiraculousType.Horse to
-            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::HorseKwami).setDimensions(KWAMI_DIMENSIONS).build()
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::HorseKwami).setDimensions(KWAMI_DIMENSIONS).build(),
+        MiraculousType.Rabbit to
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::RabbitKwami).setDimensions(KWAMI_DIMENSIONS).build()
     )
 
     val ARMORS = run {
@@ -106,7 +116,8 @@ object MiraculousMiracles : ModInitializer {
         MiraculousType.Turtle to Shield(),
         MiraculousType.Snake to Lyre(),
         MiraculousType.Ladybug to Yoyo(),
-        MiraculousType.Horse to Horseshoe()
+        MiraculousType.Horse to Horseshoe(),
+        MiraculousType.Rabbit to Umbrella()
     )
 
     val BEE_VENOM = Venom()
@@ -151,17 +162,17 @@ object MiraculousMiracles : ModInitializer {
     val SAFELY_REPLACEABLE_TAG: TagKey<Block> =
         QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "safely_replaceable"), TagType.NORMAL)
 
-    val CRUCIBLE = Crucible()
-    val CRUCIBLE_ENTITY = QuiltBlockEntityTypeBuilder.create(::CrucibleEntity, CRUCIBLE).build()
-    val CRUCIBLE_ITEM = BlockItem(CRUCIBLE, itemSettingsOf(group = ITEM_GROUP))
+    private val CRUCIBLE = Crucible()
+    val CRUCIBLE_ENTITY: BlockEntityType<CrucibleEntity> = QuiltBlockEntityTypeBuilder.create(::CrucibleEntity, CRUCIBLE).build()
+    private val CRUCIBLE_ITEM = BlockItem(CRUCIBLE, itemSettingsOf(group = ITEM_GROUP))
     val METEORITE_POWDER = Item(itemSettingsOf(group = ITEM_GROUP, rarity = Rarity.UNCOMMON))
 
-    val VOYAGE_ITEM = VoyageItem()
-    val VOYAGE_BLOCK = VoyageBlock()
+    val VOYAGE_ITEM = PortalItem(false)
+    val VOYAGE_BLOCK = PortalBlock(false)
     val VOYAGE_BLOCK_ENTITY: BlockEntityType<VoyageBlockEntity> =
         QuiltBlockEntityTypeBuilder.create(::VoyageBlockEntity, VOYAGE_BLOCK).build()
 
-    val VOYAGE_ENTITY: EntityType<VoyageEntity> = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::VoyageEntity)
+    val VOYAGE_ENTITY: EntityType<PortalItemEntity> = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::PortalItemEntity)
         .setDimensions(
             EntityDimensions(0.25f, 0.25f, true)
         )
@@ -169,8 +180,25 @@ object MiraculousMiracles : ModInitializer {
         .trackingTickInterval(10)
         .build()
 
+    val BURROW_ITEM = PortalItem(true)
+    val BURROW_BLOCK = PortalBlock(true)
+    val BURROW_BLOCK_ENTITY: BlockEntityType<BurrowBlockEntity> =
+        QuiltBlockEntityTypeBuilder.create(::BurrowBlockEntity, BURROW_BLOCK).build()
+
+    val BURROW_ENTITY: EntityType<PortalItemEntity> = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::PortalItemEntity)
+        .setDimensions(
+            EntityDimensions(0.25f, 0.25f, true)
+        )
+        .maxChunkTrackingRange(4)
+        .trackingTickInterval(10)
+        .build()
+
+    val BURROW_DIMENSION_BLOCK = Block(blockSettingsOf(material = Material.STONE, luminance = 15, hardness = -1.0f, resistance = 3600000.0f))
+    val BURROW_WORLD_KEY: RegistryKey<World> = RegistryKey.of(Registry.WORLD_KEY, Identifier(MOD_ID, "burrow"))
 
     override fun onInitialize(mod: ModContainer) {
+        Registry.register(Registry.CHUNK_GENERATOR, BURROW_WORLD_KEY.value, BurrowChunkGenerator.CODEC)
+
         val kwamiAttributes = AbstractKwami.createKwamiAttributes().build()
 
         registryScope(mod.metadata().id()) {
@@ -218,6 +246,12 @@ object MiraculousMiracles : ModInitializer {
             VOYAGE_BLOCK withPath "voyage" toRegistry Registry.BLOCK
             VOYAGE_BLOCK_ENTITY withPath "voyage_block_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
             VOYAGE_ENTITY withPath "voyage_entity" toRegistry Registry.ENTITY_TYPE
+
+            BURROW_ITEM withPath "burrow" toRegistry Registry.ITEM
+            BURROW_BLOCK withPath "burrow" toRegistry Registry.BLOCK
+            BURROW_BLOCK_ENTITY withPath "burrow_block_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
+            BURROW_ENTITY withPath "burrow_entity" toRegistry Registry.ENTITY_TYPE
+            BURROW_DIMENSION_BLOCK withPath "burrow_dimension_block" toRegistry Registry.BLOCK
         }
 
         TradeOfferHelper.registerVillagerOffers(
@@ -235,8 +269,17 @@ object MiraculousMiracles : ModInitializer {
             }
         }
 
-        ServerPlayConnectionEvents.JOIN.register { handler, _, _ ->
+        ServerPlayConnectionEvents.JOIN.register { handler, _, server ->
             ServerState.getPlayerState(handler.player).updateActiveMiraculous(handler.player, false)
+
+            ServerPlayNetworking.send(handler.player, NetworkMessages.SET_DIMENSIONS, PacketByteBufs.create().apply {
+                server.worldRegistryKeys.apply {
+                    writeInt(size)
+                    forEach {
+                        writeIdentifier(it.value)
+                    }
+                }
+            })
         }
 
         ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.DETRANSFORM) { _, player, _, packetByteBuf, _ ->
@@ -272,14 +315,19 @@ object MiraculousMiracles : ModInitializer {
             playerState.useAbility(chosenAbility, player, null)
         }
 
-        ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.SET_VOYAGE_COORDS) { _, player, _, packetByteBuf, _ ->
+        ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.SET_PORTAL_COORDS) { _, player, _, packetByteBuf, _ ->
+            val isBurrow = packetByteBuf.readBoolean()
             val playerState = ServerState.getPlayerState(player)
-            val voyageNbt = playerState.usedAbilities[MiraculousAbility.Voyage] ?: return@registerGlobalReceiver
-            val (x, y, z) = packetByteBuf.readIntArray()
+            val abilityNbt = playerState.usedAbilities[if (isBurrow) MiraculousAbility.Burrow else MiraculousAbility.Voyage] ?: return@registerGlobalReceiver
+            val (x, y, z) = packetByteBuf.readIntArray(3)
 
-            voyageNbt.putInt("x", x)
-            voyageNbt.putInt("y", y)
-            voyageNbt.putInt("z", z)
+            abilityNbt.putInt("x", x)
+            abilityNbt.putInt("y", y)
+            abilityNbt.putInt("z", z)
+
+            if (isBurrow) {
+                abilityNbt.putString("dimension", packetByteBuf.readIdentifier().toString())
+            }
 
             ServerState.getServerState(player.server).markDirty()
         }

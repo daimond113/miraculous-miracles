@@ -1,0 +1,17 @@
+{
+  "name": "Rabbit Miraculous",
+  "icon": "miraculous_miracles:rabbit_miraculous",
+  "category": "miraculous_miracles:grimoire_category",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "miraculous_miracles:rabbit_miraculous",
+      "text": "The miraculous of the Rabbit represents $(thing)Evolution$().$(br2)It gives it's user the power of $(thing)Burrow$(), which will open a portal to a pocket dimension, from which when the power is used again it will be able to teleport the user anywhere, in any dimension."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "miraculous_miracles:rabbit_kwami",
+      "text": "The kwami of the Rabbit eats carrots."
+    }
+  ]
+}
