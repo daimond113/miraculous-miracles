@@ -6,6 +6,7 @@ import com.daimond113.miraculous_miracles.states.ServerState
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot
+import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
@@ -71,6 +72,28 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
             if (!nbt.contains("kwamiUuid")) return null
             return nbt.getUuid("kwamiUuid")
         }
+
+        fun renounceKwami(
+            stack: ItemStack,
+            world: ServerWorld
+        ) {
+            val kwami = getOptionalKwamiUuid(stack)?.let { world.getEntity(it) }
+            if (kwami !is AbstractKwami) return
+            renounceKwami(stack, kwami)
+        }
+
+        fun renounceKwami(
+            stack: ItemStack,
+            kwami: AbstractKwami
+        ) {
+            kwami.remove(Entity.RemovalReason.DISCARDED)
+
+            setNBT(stack, Optional.empty())
+        }
+    }
+
+    override fun onItemEntityDestroyed(entity: ItemEntity) {
+        renounceKwami(entity.stack, entity.world as ServerWorld)
     }
 
     override fun useOnBlock(context: ItemUsageContext): ActionResult {
@@ -80,15 +103,17 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
 
         if (itemStack == null || player.world?.server == null) return ActionResult.PASS
 
-        val nbt = getNBT(itemStack)
-        var kwamiUuid = if (nbt.contains("kwamiUuid")) nbt.getUuid("kwamiUuid") else null
+        var kwamiUuid = getOptionalKwamiUuid(itemStack)
 
         fun spawnKwami() {
-            val newKwami = MiraculousMiracles.KWAMIS[miraculousType]!!.create(player.world)
-            newKwami?.updatePosition(hitPos.x, hitPos.y, hitPos.z)
-            if (newKwami != null) {
-                kwamiUuid = newKwami.uuid
-                newKwami.isHungry = nbt.getBoolean("isHungry")
+            val newKwami = MiraculousMiracles.KWAMIS[miraculousType]!!.create(player.world)?.let {
+                it.updatePosition(hitPos.x, hitPos.y, hitPos.z)
+
+                kwamiUuid = it.uuid
+                it.isHungry = getNBT(itemStack).getBoolean("isHungry")
+                it.setOwner(player)
+
+                it
             }
 
             player.world.spawnEntity(newKwami)
@@ -96,11 +121,14 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
 
         val playerState = ServerState.getPlayerState(player)
 
-        if (kwamiUuid == null) spawnKwami()
-        else if ((player.world as ServerWorld).getEntity(kwamiUuid) == null && !playerState.activeMiraculous.contains(
-                miraculousType
-            )
-        ) spawnKwami()
+        if (kwamiUuid == null) {
+            spawnKwami()
+        } else if (
+            (player.world as ServerWorld).getEntity(kwamiUuid) == null &&
+            !playerState.activeMiraculous.contains(miraculousType)
+        ) {
+            spawnKwami()
+        }
 
         if (kwamiUuid == null) return ActionResult.PASS
 
@@ -109,26 +137,22 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
         return ActionResult.CONSUME
     }
 
-    override fun isDamageable(): Boolean {
-        return false
-    }
-
-    override fun postHit(stack: ItemStack, target: LivingEntity, attacker: LivingEntity): Boolean {
-        if (target is AbstractKwami && target.miraculousType == miraculousType && target.uuid == getOptionalKwamiUuid(
-                stack
-            ) && attacker.world.server != null && attacker is ServerPlayerEntity
+    override fun postHit(stack: ItemStack, kwami: LivingEntity, attacker: LivingEntity): Boolean {
+        if (kwami is AbstractKwami &&
+            kwami.miraculousType == miraculousType &&
+            kwami.uuid == getOptionalKwamiUuid(stack) &&
+            attacker.world.server != null &&
+            attacker is ServerPlayerEntity
         ) {
             PlayerState.sendMessageFrom(
                 Text.translatable(
-                    "text.miraculous_miracles.renunciacion",
+                    "text.miraculous_miracles.renunciation",
                     Text.translatable("entity.miraculous_miracles.${miraculousType.toString().lowercase()}_kwami")
                 ),
                 attacker
             )
 
-            target.remove(Entity.RemovalReason.DISCARDED)
-
-            setNBT(stack, Optional.empty())
+            renounceKwami(stack, kwami)
 
             return true
         }
@@ -136,12 +160,12 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
         return false
     }
 
-    override fun useOnEntity(stack: ItemStack, user: PlayerEntity, entity: LivingEntity, hand: Hand): ActionResult {
-        if (entity is AbstractKwami &&
-            entity.miraculousType == miraculousType &&
+    override fun useOnEntity(stack: ItemStack, user: PlayerEntity, kwami: LivingEntity, hand: Hand): ActionResult {
+        if (kwami is AbstractKwami &&
+            kwami.miraculousType == miraculousType &&
             user.world.server != null &&
-            entity.uuid == getOptionalKwamiUuid(stack) &&
-            !entity.isHungry &&
+            kwami.uuid == getOptionalKwamiUuid(stack) &&
+            !kwami.isHungry &&
             !user.hasStatusEffect(
                 MiraculousMiracles.TRANSFORMATION_TIME_LEFT_EFFECT
             ) &&
@@ -189,7 +213,7 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
                     user
                 )
 
-                entity.remove(Entity.RemovalReason.DISCARDED)
+                kwami.remove(Entity.RemovalReason.DISCARDED)
 
                 val weaponStack = ItemStack(MiraculousMiracles.MIRACULOUS_WEAPONS[miraculousType]!!)
                 weaponStack.addEnchantment(Enchantments.VANISHING_CURSE, 1)
@@ -204,5 +228,9 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
         }
 
         return ActionResult.PASS
+    }
+
+    override fun isDamageable(): Boolean {
+        return false
     }
 }

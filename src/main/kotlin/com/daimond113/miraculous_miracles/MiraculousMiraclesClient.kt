@@ -1,16 +1,19 @@
 package com.daimond113.miraculous_miracles
 
+import com.daimond113.miraculous_miracles.content.CrucibleRenderer
+import com.daimond113.miraculous_miracles.content.MultitudeEntityRenderer
 import com.daimond113.miraculous_miracles.core.AbstractMiraculous
 import com.daimond113.miraculous_miracles.core.MiraculousAbility
 import com.daimond113.miraculous_miracles.core.MiraculousType
 import com.daimond113.miraculous_miracles.core.NetworkMessages
-import com.daimond113.miraculous_miracles.content.CrucibleRenderer
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiRenderer
+import com.daimond113.miraculous_miracles.kwamis.rabbit.MouseKwamiModel
+import com.daimond113.miraculous_miracles.kwamis.rabbit.MouseKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.rabbit.RabbitKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.rabbit.RabbitKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiModel
@@ -18,10 +21,7 @@ import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiRenderer
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiModel
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiRenderer
 import com.daimond113.miraculous_miracles.states.PlayerState
-import com.daimond113.miraculous_miracles.ui.BurrowCoordinateScreen
-import com.daimond113.miraculous_miracles.ui.RadialAction
-import com.daimond113.miraculous_miracles.ui.RadialScreen
-import com.daimond113.miraculous_miracles.ui.VoyageCoordinateScreen
+import com.daimond113.miraculous_miracles.ui.*
 import com.mojang.blaze3d.platform.InputUtil
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
@@ -54,6 +54,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
     val MODEL_LADYBUG_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "ladybug_kwami"), "main")
     val MODEL_HORSE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "horse_kwami"), "main")
     val MODEL_RABBIT_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "rabbit_kwami"), "main")
+    val MODEL_MOUSE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "mouse_kwami"), "main")
 
     private var activeMiraculous: Set<MiraculousType> = setOf()
     var allDimensions: MutableSet<Identifier> = mutableSetOf()
@@ -143,13 +144,25 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
-        EntityModelLayerRegistry.registerModelLayer(MODEL_BEE_KWAMI_LAYER, BeeKwamiModel::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(MODEL_TURTLE_KWAMI_LAYER, TurtleKwamiModel::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(MODEL_SNAKE_KWAMI_LAYER, SnakeKwamiModel::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(MODEL_LADYBUG_KWAMI_LAYER, LadybugKwamiModel::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(MODEL_HORSE_KWAMI_LAYER, HorseKwamiModel::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(MODEL_RABBIT_KWAMI_LAYER, RabbitKwamiModel::getTexturedModelData);
+        EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Mouse]) { context ->
+            MouseKwamiRenderer(
+                context
+            )
+        }
 
+        EntityRendererRegistry.register(MiraculousMiracles.MULTITUDE_PLAYER_ENTITY) { context ->
+            MultitudeEntityRenderer(
+                context
+            )
+        }
+
+        EntityModelLayerRegistry.registerModelLayer(MODEL_BEE_KWAMI_LAYER, BeeKwamiModel::getTexturedModelData)
+        EntityModelLayerRegistry.registerModelLayer(MODEL_TURTLE_KWAMI_LAYER, TurtleKwamiModel::getTexturedModelData)
+        EntityModelLayerRegistry.registerModelLayer(MODEL_SNAKE_KWAMI_LAYER, SnakeKwamiModel::getTexturedModelData)
+        EntityModelLayerRegistry.registerModelLayer(MODEL_LADYBUG_KWAMI_LAYER, LadybugKwamiModel::getTexturedModelData)
+        EntityModelLayerRegistry.registerModelLayer(MODEL_HORSE_KWAMI_LAYER, HorseKwamiModel::getTexturedModelData)
+        EntityModelLayerRegistry.registerModelLayer(MODEL_RABBIT_KWAMI_LAYER, RabbitKwamiModel::getTexturedModelData)
+        EntityModelLayerRegistry.registerModelLayer(MODEL_MOUSE_KWAMI_LAYER, MouseKwamiModel::getTexturedModelData)
 
         val detransformKey = KeyBindingHelper.registerKeyBinding(
             KeyBind(
@@ -201,7 +214,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
                                 "item.miraculous_miracles.${
                                     miraculousType.toString().lowercase()
                                 }_miraculous"
-                            ) { ->
+                            ) {
                                 val packetByteBuf = PacketByteBufs.create()
                                 packetByteBuf.writeInt(miraculousType.id)
 
@@ -212,7 +225,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
                 )
             } else {
                 val possibleAbilities = MiraculousAbility.values()
-                    .filter { ability -> ability.withKeybind && activeMiraculous.contains(ability.miraculousType) }
+                    .filter { ability -> ability.withKeyBind && activeMiraculous.contains(ability.miraculousType) }
 
                 if (possibleAbilities.size <= 1) {
                     val firstAbility = possibleAbilities.firstOrNull() ?: return@register
@@ -229,7 +242,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
                         "screen.miraculous_miracles.use_ability",
                         abilityKey,
                         possibleAbilities.map { ability ->
-                            RadialAction("ability.miraculous_miracles.${ability.toString().lowercase()}") { ->
+                            RadialAction("ability.miraculous_miracles.${ability.toString().lowercase()}") {
                                 val packetByteBuf = PacketByteBufs.create()
                                 packetByteBuf.writeInt(ability.id)
 
@@ -255,6 +268,14 @@ object MiraculousMiraclesClient : ClientModInitializer {
             allDimensions.clear()
             for (int in 0 until packetBuf.readInt()) {
                 allDimensions.add(packetBuf.readIdentifier())
+            }
+        }
+
+        ClientPlayNetworking.registerGlobalReceiver(NetworkMessages.REQUEST_SET_MULTITUDE_AMOUNT) { client, _, _, _ ->
+            client.execute {
+                if (client.currentScreen != null) return@execute
+
+                client.setScreen(MultitudeScreen())
             }
         }
     }

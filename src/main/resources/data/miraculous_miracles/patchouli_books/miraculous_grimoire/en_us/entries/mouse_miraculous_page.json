@@ -1,0 +1,17 @@
+{
+  "name": "Mouse Miraculous",
+  "icon": "miraculous_miracles:mouse_miraculous",
+  "category": "miraculous_miracles:grimoire_category",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "miraculous_miracles:mouse_miraculous",
+      "text": "The miraculous of the Mouse represents $(thing)Multiplication$().$(br2)It gives it's user the power of $(thing)Multitude$(), which will split the user into the specified amount. The copies behave like wolves, attacking what the user attacks."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "miraculous_miracles:mouse_kwami",
+      "text": "The kwami of the Mouse eats anything non-meat."
+    }
+  ]
+}

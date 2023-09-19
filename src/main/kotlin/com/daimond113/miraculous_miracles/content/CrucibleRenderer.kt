@@ -33,6 +33,7 @@ class CrucibleRenderer : BlockEntityRenderer<CrucibleEntity> {
             matrices.translate(0.5, offset, 0.5)
 
             val lightAbove = WorldRenderer.getLightmapCoordinates(blockEntity.world, blockEntity.pos.up())
+
             MinecraftClient.getInstance().itemRenderer.renderItem(
                 ItemStack(miraculousItem),
                 ModelTransformation.Mode.FIXED,
@@ -41,10 +42,9 @@ class CrucibleRenderer : BlockEntityRenderer<CrucibleEntity> {
                 matrices,
                 vertexConsumers,
                 0
-            );
+            )
 
-            // Mandatory call after GL calls
-            matrices.pop();
+            matrices.pop()
         }
     }
 }

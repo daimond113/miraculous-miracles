@@ -36,6 +36,10 @@ repositories {
 		name = "OwO"
 		url = uri("https://maven.wispforest.io")
 	}
+
+	maven {
+		url = uri("https://jitpack.io")
+	}
 }
 
 // All the dependencies are declared at gradle/libs.version.toml and referenced with "libs.<id>"
@@ -72,6 +76,11 @@ dependencies {
 
 	modImplementation(libs.owo)
 	include(libs.sentinel)
+
+	modImplementation(libs.pehkui) {
+		exclude(group = "net.fabricmc")
+		exclude(group = "net.fabricmc.fabric-api")
+	}
 }
 
 tasks {

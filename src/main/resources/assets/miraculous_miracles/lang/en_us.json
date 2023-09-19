@@ -5,7 +5,7 @@
   "key.miraculous_miracles.miraculous_ability": "Miraculous Ability",
   "effect.miraculous_miracles.transformation_time_left": "Time Left",
   "text.miraculous_miracles.division": "%s, Divide!",
-  "text.miraculous_miracles.renunciacion": "%s, I renounce you.",
+  "text.miraculous_miracles.renunciation": "%s, I renounce you.",
   "itemGroup.miraculous_miracles.item_group": "Miraculous Miracles",
   "item.miraculous_miracles.miraculous_grimoire": "Miraculous Grimoire",
   "text.miraculous_miracles.miraculous_too_damaged": "This miraculous is too damaged, and must be repaired",
@@ -98,5 +98,20 @@
   "screen.miraculous_miracles.burrow_coords": "Burrow Coordinates",
   "text.miraculous_miracles.burrow.dimension": "Dimension",
   "text.miraculous_miracles.burrow.current_dimension": "Current: %s",
-  "block.miraculous_miracles.burrow_dimension_block": "Burrow Dimension Block"
+  "block.miraculous_miracles.burrow_dimension_block": "Burrow Dimension Block",
+
+  "item.miraculous_miracles.mouse_miraculous": "Mouse Miraculous",
+  "entity.miraculous_miracles.mouse_kwami": "Mullo",
+  "text.miraculous_miracles.mouse.transformation": "Mullo, Get Squeaky!",
+  "text.miraculous_miracles.mouse.detransformation": "Unsqueak!",
+  "ability.miraculous_miracles.multitude": "Multitude",
+  "text.miraculous_miracles.multitude.initialize.shout": "Multitude!",
+  "text.miraculous_miracles.multitude.deinitialize.shout": "Fall in!",
+  "item.miraculous_miracles.mouse_skip_rope": "Skip Rope",
+  "item.miraculous_miracles.mouse_head": "Mouse Helmet",
+  "item.miraculous_miracles.mouse_chest": "Mouse Chestplate",
+  "item.miraculous_miracles.mouse_legs": "Mouse Leggings",
+  "item.miraculous_miracles.mouse_feet": "Mouse Boots",
+  "screen.miraculous_miracles.multitude_amount": "Multitude Amount",
+  "entity.miraculous_miracles.multitude_player_entity": "Multitude Player"
 }

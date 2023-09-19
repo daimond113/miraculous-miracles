@@ -14,7 +14,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(li)$(l:ladybug_miraculous_page)Ladybug$() - Cocoa Beans$()$(li)$(l:bee_miraculous_page)Bee$() - Honey Comb$()$(li)$(l:horse_miraculous_page)Horse$() - Saddle$()$(li)$(l:rabbit_miraculous_page)Rabbit$() - Rabbit Hide$()$(li)$(l:snake_miraculous_page)Snake$() - Leather$()$(li)$(l:turtle_miraculous_page)Turtle$() - Scute$()"
+      "text": "$(li)$(l:ladybug_miraculous_page)Ladybug$() - Cocoa Beans$()$(li)$(l:bee_miraculous_page)Bee$() - Honey Comb$()$(li)$(l:horse_miraculous_page)Horse$() - Saddle$()$(li)$(l:mouse_miraculous_page)Mouse$() - String$()$(li)$(l:rabbit_miraculous_page)Rabbit$() - Rabbit Hide$()$(li)$(l:snake_miraculous_page)Snake$() - Leather$()$(li)$(l:turtle_miraculous_page)Turtle$() - Scute$()"
     },
     {
       "type": "patchouli:text",

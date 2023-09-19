@@ -1,7 +1,10 @@
 package com.daimond113.miraculous_miracles.states
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
-import com.daimond113.miraculous_miracles.core.*
+import com.daimond113.miraculous_miracles.core.AbstractMiraculous
+import com.daimond113.miraculous_miracles.core.MiraculousAbility
+import com.daimond113.miraculous_miracles.core.MiraculousType
+import com.daimond113.miraculous_miracles.core.NetworkMessages
 import com.daimond113.miraculous_miracles.effects.Reasons
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.item.ItemStack
@@ -81,24 +84,26 @@ class PlayerState {
             }
         }
 
-        val hasBeenUsed = if (ability.isToggleable)
-            run {
-                val beenUsed = nbtCompound.getBoolean("hasBeenUsed")
-                nbtCompound.putBoolean("hasBeenUsed", !beenUsed)
-                beenUsed
-            }
-        else
-            false
+        val hasBeenUsed = MiraculousAbility.HasBeenUsed.fromBoolean(
+            if (ability.isToggleable)
+                nbtCompound.getBoolean("hasBeenUsed")
+            else
+                false
+        )
 
-        if (!ability.ignoresMinutes && player.hasStatusEffect(MiraculousMiracles.TRANSFORMATION_TIME_LEFT_EFFECT) && !hasBeenUsed) return
+        if (!ability.ignoresMinutes && player.hasStatusEffect(MiraculousMiracles.TRANSFORMATION_TIME_LEFT_EFFECT) && !hasBeenUsed.value) return
 
         when (ability.execute(player, nbtCompound, hasBeenUsed, additionalParam)) {
-            AbilityResult.Success -> {
+            MiraculousAbility.Result.Success -> {
+                if (ability.isToggleable) {
+                    nbtCompound.putBoolean("hasBeenUsed", !hasBeenUsed.value)
+                }
+
                 sendMessageFrom(
                     Text.translatable(
                         "text.miraculous_miracles.${
                             ability.toString().lowercase()
-                        }${if (ability.isToggleable) if (hasBeenUsed) ".deinitialize" else ".initialize" else ""}.shout"
+                        }${if (ability.isToggleable) if (hasBeenUsed.value) ".deinitialize" else ".initialize" else ""}.shout"
                     ),
                     player
                 )
@@ -162,7 +167,7 @@ class PlayerState {
                         "hasBeenUsed"
                     )
                 ) {
-                    ability.execute(player, nbt, true, null)
+                    ability.execute(player, nbt, MiraculousAbility.HasBeenUsed.TrueAuto, null)
                 }
 
                 ability.miraculousType == miraculousType

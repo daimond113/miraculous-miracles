@@ -48,8 +48,8 @@ class BurrowChunkGenerator(registry: Registry<StructureSet>, val biomeRegistry: 
                 )
             }
 
-        val DIMENSION_WIDTH = 15
-        val DIMENSION_HEIGHT = 15
+        const val DIMENSION_WIDTH = 15
+        const val DIMENSION_HEIGHT = 15
     }
 
     override fun getCodec(): Codec<out ChunkGenerator?> {

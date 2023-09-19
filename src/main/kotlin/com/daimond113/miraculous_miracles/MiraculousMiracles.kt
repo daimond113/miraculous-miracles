@@ -7,6 +7,7 @@ import com.daimond113.miraculous_miracles.effects.TransformationTimeLeftEffect
 import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwami
 import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwami
 import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwami
+import com.daimond113.miraculous_miracles.kwamis.mouse.MouseKwami
 import com.daimond113.miraculous_miracles.kwamis.rabbit.RabbitKwami
 import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwami
 import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwami
@@ -16,16 +17,16 @@ import com.daimond113.miraculous_miracles.states.ServerState
 import net.minecraft.block.Block
 import net.minecraft.block.Material
 import net.minecraft.block.entity.BlockEntityType
-import net.minecraft.entity.EntityDimensions
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.EquipmentSlot
-import net.minecraft.entity.SpawnGroup
+import net.minecraft.entity.*
 import net.minecraft.entity.attribute.DefaultAttributeRegistry
+import net.minecraft.entity.attribute.EntityAttributes
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.*
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.tag.TagKey
 import net.minecraft.util.Identifier
 import net.minecraft.util.Rarity
+import net.minecraft.util.math.MathHelper
 import net.minecraft.util.registry.Registry
 import net.minecraft.util.registry.RegistryKey
 import net.minecraft.village.TradeOffer
@@ -39,6 +40,8 @@ import org.quiltmc.qsl.base.api.entrypoint.ModInitializer
 import org.quiltmc.qsl.block.entity.api.QuiltBlockEntityTypeBuilder
 import org.quiltmc.qsl.entity.api.QuiltEntityTypeBuilder
 import org.quiltmc.qsl.entity_events.api.LivingEntityDeathCallback
+import org.quiltmc.qsl.entity_events.api.ServerEntityLoadEvents
+import org.quiltmc.qsl.lifecycle.api.event.ServerTickEvents
 import org.quiltmc.qsl.networking.api.PacketByteBufs
 import org.quiltmc.qsl.networking.api.ServerPlayConnectionEvents
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking
@@ -71,7 +74,8 @@ object MiraculousMiracles : ModInitializer {
             SnakeMiraculous(),
             LadybugMiraculous(),
             HorseMiraculous(),
-            RabbitMiraculous()
+            RabbitMiraculous(),
+            MouseMiraculous()
         )) {
             map[miraculousInstance.miraculousType] = miraculousInstance
         }
@@ -91,7 +95,9 @@ object MiraculousMiracles : ModInitializer {
         MiraculousType.Horse to
             QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::HorseKwami).setDimensions(KWAMI_DIMENSIONS).build(),
         MiraculousType.Rabbit to
-            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::RabbitKwami).setDimensions(KWAMI_DIMENSIONS).build()
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::RabbitKwami).setDimensions(KWAMI_DIMENSIONS).build(),
+        MiraculousType.Mouse to
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::MouseKwami).setDimensions(KWAMI_DIMENSIONS).build()
     )
 
     val ARMORS = run {
@@ -116,7 +122,8 @@ object MiraculousMiracles : ModInitializer {
         MiraculousType.Snake to Lyre(),
         MiraculousType.Ladybug to Yoyo(),
         MiraculousType.Horse to Horseshoe(),
-        MiraculousType.Rabbit to Umbrella()
+        MiraculousType.Rabbit to Umbrella(),
+        MiraculousType.Mouse to SkipRope()
     )
 
     val BEE_VENOM = Venom()
@@ -197,6 +204,12 @@ object MiraculousMiracles : ModInitializer {
         Block(blockSettingsOf(material = Material.STONE, luminance = 15, hardness = -1.0f, resistance = 3600000.0f))
     val BURROW_WORLD_KEY: RegistryKey<World> = RegistryKey.of(Registry.WORLD_KEY, Identifier(MOD_ID, "burrow"))
 
+    val DEBOUNCES = mutableMapOf<String, Int>()
+
+    val MULTITUDE_PLAYER_ENTITY = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::MultitudeEntity)
+        .setDimensions(PlayerEntity.STANDING_DIMENSIONS)
+        .build()
+
     override fun onInitialize(mod: ModContainer) {
         Registry.register(Registry.CHUNK_GENERATOR, BURROW_WORLD_KEY.value, BurrowChunkGenerator.CODEC)
 
@@ -253,6 +266,14 @@ object MiraculousMiracles : ModInitializer {
             BURROW_BLOCK_ENTITY withPath "burrow_block_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
             BURROW_ENTITY withPath "burrow_entity" toRegistry Registry.ENTITY_TYPE
             BURROW_DIMENSION_BLOCK withPath "burrow_dimension_block" toRegistry Registry.BLOCK
+
+            DefaultAttributeRegistry.DEFAULT_ATTRIBUTE_REGISTRY[MULTITUDE_PLAYER_ENTITY] = PlayerEntity.createPlayerAttributes()
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3)
+                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 100.0)
+                .add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK, 0.1)
+                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0)
+                .build()
+            MULTITUDE_PLAYER_ENTITY withPath "multitude_player_entity" toRegistry Registry.ENTITY_TYPE
         }
 
         TradeOfferHelper.registerVillagerOffers(
@@ -305,7 +326,7 @@ object MiraculousMiracles : ModInitializer {
                 val abilityId = packetByteBuf.readInt()
                 val receivedAbility = PlayerState.getAbilityById(abilityId)
 
-                if (receivedAbility.withKeybind)
+                if (receivedAbility.withKeyBind)
                     receivedAbility
                 else
                     null
@@ -335,11 +356,39 @@ object MiraculousMiracles : ModInitializer {
             ServerState.getServerState(player.server).markDirty()
         }
 
+        ServerPlayNetworking.registerGlobalReceiver(NetworkMessages.SET_MULTITUDE_AMOUNT) { _, player, _, packetByteBuf, _ ->
+            val playerState = ServerState.getPlayerState(player)
+            val abilityNbt = playerState.usedAbilities[MiraculousAbility.Multitude] ?: return@registerGlobalReceiver
+            val amount = MathHelper.clamp(packetByteBuf.readInt(), 2, 16)
+
+            abilityNbt.putInt("amount", amount)
+
+            ServerState.getServerState(player.server).markDirty()
+        }
+
         LivingEntityDeathCallback.EVENT.register { entity, _ ->
             if (entity !is ServerPlayerEntity) return@register
             val playerState = ServerState.getPlayerState(entity)
 
             playerState.detransform(entity, playerState.activeMiraculous.keys, true)
+        }
+
+        ServerEntityLoadEvents.AFTER_LOAD.register { entity, world ->
+            if (entity !is ItemEntity) return@register
+            if (entity.stack.item !is AbstractMiraculous) return@register
+            AbstractMiraculous.renounceKwami(entity.stack, world)
+        }
+
+        ServerTickEvents.END.register { _ ->
+            val iterator = DEBOUNCES.iterator()
+
+            while (iterator.hasNext()) {
+                val entry = iterator.next()
+                entry.setValue(entry.value - 1)
+                if (entry.value <= 0) {
+                    iterator.remove()
+                }
+            }
         }
     }
 }

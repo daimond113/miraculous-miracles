@@ -10,4 +10,6 @@ object NetworkMessages {
     val REQUEST_SET_PORTAL_COORDS = Identifier(MiraculousMiracles.MOD_ID, "request_set_portal_coords")
     val SET_PORTAL_COORDS = Identifier(MiraculousMiracles.MOD_ID, "set_portal_coords")
     val SET_DIMENSIONS = Identifier(MiraculousMiracles.MOD_ID, "set_dimensions")
+    val REQUEST_SET_MULTITUDE_AMOUNT = Identifier(MiraculousMiracles.MOD_ID, "request_set_multitude_amount")
+    val SET_MULTITUDE_AMOUNT = Identifier(MiraculousMiracles.MOD_ID, "set_multitude_amount")
 }

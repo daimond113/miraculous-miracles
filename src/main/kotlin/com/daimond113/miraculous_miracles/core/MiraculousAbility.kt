@@ -1,27 +1,32 @@
 package com.daimond113.miraculous_miracles.core
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
+import com.daimond113.miraculous_miracles.content.MultitudeEntity
 import com.daimond113.miraculous_miracles.content.PortalItem
 import com.daimond113.miraculous_miracles.states.PlayerState
 import net.minecraft.block.Blocks
 import net.minecraft.enchantment.Enchantments
+import net.minecraft.entity.Entity
+import net.minecraft.entity.EquipmentSlot
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
 import org.quiltmc.qsl.networking.api.PacketByteBufs
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking
-import java.util.Random
+import virtuoel.pehkui.api.ScaleTypes
+import java.util.*
 
 // TODO: improve this mess
 enum class MiraculousAbility(
     val id: Int,
     val miraculousType: MiraculousType,
-    val execute: (ServerPlayerEntity, NbtCompound, Boolean, Any?) -> AbilityResult,
+    val execute: (ServerPlayerEntity, NbtCompound, HasBeenUsed, Any?) -> Result,
     val ignoresMinutes: Boolean = false,
     val givesMinutesLeft: Boolean = !ignoresMinutes,
-    val withKeybind: Boolean = true,
+    val withKeyBind: Boolean = true,
     val isToggleable: Boolean = false
 ) {
     @Suppress("unused")
@@ -31,11 +36,11 @@ enum class MiraculousAbility(
 
         PlayerState.giveItemStack(stack, player)
 
-        AbilityResult.Success
+        Result.Success
     }),
 
     Shellter(1, MiraculousType.Turtle, { player, nbt, hasBeenUsed, landedPos ->
-        val centrePos = if (hasBeenUsed)
+        val centrePos = if (hasBeenUsed.value)
             BlockPos(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"))
         else run {
             val blockPos = (if (landedPos is BlockPos) landedPos else player.blockPos).add(0, 1, 0)
@@ -52,7 +57,7 @@ enum class MiraculousAbility(
                 for (z in -halfSize..halfSize) {
                     if (x == -halfSize || x == halfSize || y == -halfSize || y == halfSize || z == -halfSize || z == halfSize) {
                         val pos = centrePos.add(x, y, z)
-                        if (hasBeenUsed) {
+                        if (hasBeenUsed.value) {
                             if (!player.world.getBlockState(pos)
                                     .isOf(MiraculousMiracles.TURTLE_SHELLTER_BLOCK)
                             ) continue
@@ -68,8 +73,8 @@ enum class MiraculousAbility(
             }
         }
 
-        AbilityResult.Success
-    }, withKeybind = false, isToggleable = true),
+        Result.Success
+    }, withKeyBind = false, isToggleable = true),
 
     @Suppress("unused")
     SecondChance(2, MiraculousType.Snake, { player, nbt, _, _ ->
@@ -91,7 +96,7 @@ enum class MiraculousAbility(
         }
         player.onLanding()
 
-        AbilityResult.Success
+        Result.Success
     }, ignoresMinutes = true, givesMinutesLeft = true),
 
     @Suppress("unused")
@@ -121,7 +126,7 @@ enum class MiraculousAbility(
             player
         )
 
-        AbilityResult.Success
+        Result.Success
     }),
 
     @Suppress("unused")
@@ -136,7 +141,7 @@ enum class MiraculousAbility(
                     PacketByteBufs.create().apply {
                         writeBoolean(false)
                     })
-                AbilityResult.Fail
+                Result.Fail
             } else {
                 PlayerState.giveItemStack(
                     ItemStack(MiraculousMiracles.VOYAGE_ITEM).apply {
@@ -151,7 +156,7 @@ enum class MiraculousAbility(
                     player
                 )
 
-                AbilityResult.Success
+                Result.Success
             }
         },
     ),
@@ -175,9 +180,9 @@ enum class MiraculousAbility(
                         player
                     )
 
-                    AbilityResult.Success
+                    Result.Success
                 } else {
-                    AbilityResult.Fail
+                    Result.Fail
                 }
             } else if (!nbt.contains("x") || player.isSneaking) {
                 ServerPlayNetworking.send(
@@ -187,7 +192,7 @@ enum class MiraculousAbility(
                         writeBoolean(true)
                     })
 
-                AbilityResult.Fail
+                Result.Fail
             } else {
                 if (!player.inventory.containsAny(setOf(MiraculousMiracles.BURROW_ITEM))) {
                     PlayerState.giveItemStack(
@@ -202,13 +207,92 @@ enum class MiraculousAbility(
                         player
                     )
 
-                    AbilityResult.Success
+                    Result.Success
                 } else {
-                    AbilityResult.Fail
+                    Result.Fail
                 }
             }
         },
         givesMinutesLeft = false,
         ignoresMinutes = true,
+    ),
+
+    @Suppress("unused")
+    Multitude(
+        6,
+        MiraculousType.Mouse,
+        { player, nbt, hasBeenUsed, _ ->
+            val debounceKey = "multitude-${player.uuidAsString}"
+
+            if (hasBeenUsed != HasBeenUsed.TrueAuto && MiraculousMiracles.DEBOUNCES.contains(debounceKey)) {
+                Result.Fail
+            } else if (hasBeenUsed.value) {
+                ScaleTypes.WIDTH.getScaleData(player).targetScale = ScaleTypes.WIDTH.defaultBaseScale
+                ScaleTypes.HEIGHT.getScaleData(player).targetScale = ScaleTypes.HEIGHT.defaultBaseScale
+
+                for (key in nbt.keys) {
+                    if (!key.startsWith("multitudeEntity")) continue
+                    (player.world as ServerWorld).getEntity(nbt.getUuid(key))?.remove(Entity.RemovalReason.DISCARDED)
+                }
+
+                Result.Success
+            } else if (!nbt.contains("amount") || player.isSneaking) {
+                ServerPlayNetworking.send(
+                    player,
+                    NetworkMessages.REQUEST_SET_MULTITUDE_AMOUNT,
+                    PacketByteBufs.empty()
+                )
+
+                Result.Fail
+            } else {
+                MiraculousMiracles.DEBOUNCES[debounceKey] = 30
+
+                val maxAmount = 16f
+                val amount = nbt.getInt("amount")
+                val scale = 1 - (amount / maxAmount) * 0.65f
+
+                ScaleTypes.WIDTH.getScaleData(player).targetScale = scale
+                ScaleTypes.HEIGHT.getScaleData(player).targetScale = scale
+
+                repeat(amount - 1) {
+                    val fakePlayerEntity = MultitudeEntity(player.world, player)
+                    fakePlayerEntity.setPos(player.x, player.y, player.z)
+                    fakePlayerEntity.yaw = player.yaw
+                    fakePlayerEntity.pitch = player.pitch
+
+                    EquipmentSlot.values().forEach { slot ->
+                        fakePlayerEntity.equipStack(slot, player.getEquippedStack(slot).copy())
+                        fakePlayerEntity.setEquipmentDropChance(slot, 0f)
+                    }
+
+                    ScaleTypes.WIDTH.getScaleData(fakePlayerEntity).scale = scale
+                    ScaleTypes.HEIGHT.getScaleData(fakePlayerEntity).targetScale = scale
+
+                    player.world.spawnEntity(fakePlayerEntity)
+
+                    nbt.putUuid("multitudeEntity$it", fakePlayerEntity.uuid)
+                }
+
+                Result.Success
+            }
+        },
+        isToggleable = true
     );
+
+    enum class Result {
+        Success,
+        Fail
+    }
+
+    enum class HasBeenUsed(val value: Boolean) {
+        True(true),
+        False(false),
+        TrueAuto(true);
+
+        companion object {
+            fun fromBoolean(bool: Boolean): HasBeenUsed {
+                return if (bool) True else False
+            }
+        }
+    }
 }

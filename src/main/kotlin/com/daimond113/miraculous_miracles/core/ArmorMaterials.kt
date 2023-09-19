@@ -14,10 +14,11 @@ enum class ArmorMaterials(val miraculousType: MiraculousType) : ArmorMaterial {
     Snake(MiraculousType.Snake),
     Ladybug(MiraculousType.Ladybug),
     Horse(MiraculousType.Horse),
-    Rabbit(MiraculousType.Rabbit);
+    Rabbit(MiraculousType.Rabbit),
+    Mouse(MiraculousType.Mouse);
 
-    private val baseDurability = arrayOf(13, 15, 16, 11);
-    private val protectionValues = arrayOf(3, 6, 8, 3);
+    private val baseDurability = arrayOf(13, 15, 16, 11)
+    private val protectionValues = arrayOf(3, 6, 8, 3)
 
     override fun getDurability(slot: EquipmentSlot): Int {
         return baseDurability[slot.entitySlotId]
