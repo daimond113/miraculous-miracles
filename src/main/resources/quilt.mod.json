@@ -53,6 +53,11 @@
 			{
 				"id": "owo",
 				"versions": "0.9.3+1.19"
+			},
+			{
+				"id": "pehkui",
+				"versions": "3.7.8+1.14.4-1.20.1",
+				"optional": true
 			}
 		]
 	},

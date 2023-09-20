@@ -52,7 +52,7 @@ jobs:
             qkl@1.0.2+kt.1.8.0+flk.1.9.0(required)
             patchouli@1.19.2-77-fabric(optional){curseforge:393236}
             owo-lib@0.9.3+1.19(required)
-            pehkui@3.7.8+1.14.4-1.20.1(required)
+            pehkui@3.7.8+1.14.4-1.20.1(optional)
 
           loaders: quilt
           game-versions: ${{ env.MINECRAFT_VERSION }}

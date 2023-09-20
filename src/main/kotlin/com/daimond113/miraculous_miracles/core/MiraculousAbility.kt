@@ -14,6 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.BlockPos
+import org.quiltmc.loader.api.QuiltLoader
 import org.quiltmc.qsl.networking.api.PacketByteBufs
 import org.quiltmc.qsl.networking.api.ServerPlayNetworking
 import virtuoel.pehkui.api.ScaleTypes
@@ -224,12 +225,17 @@ enum class MiraculousAbility(
         { player, nbt, hasBeenUsed, _ ->
             val debounceKey = "multitude-${player.uuidAsString}"
 
+            fun scaleEntity(entity: Entity, newScale: Float) {
+                if (QuiltLoader.isModLoaded("pehkui")) {
+                    ScaleTypes.WIDTH.getScaleData(entity).targetScale = newScale
+                    ScaleTypes.HEIGHT.getScaleData(entity).targetScale = newScale
+                }
+            }
+
             if (hasBeenUsed != HasBeenUsed.TrueAuto && MiraculousMiracles.DEBOUNCES.contains(debounceKey)) {
                 Result.Fail
             } else if (hasBeenUsed.value) {
-                ScaleTypes.WIDTH.getScaleData(player).targetScale = ScaleTypes.WIDTH.defaultBaseScale
-                ScaleTypes.HEIGHT.getScaleData(player).targetScale = ScaleTypes.HEIGHT.defaultBaseScale
-
+                scaleEntity(player, 1f)
                 for (key in nbt.keys) {
                     if (!key.startsWith("multitudeEntity")) continue
                     (player.world as ServerWorld).getEntity(nbt.getUuid(key))?.remove(Entity.RemovalReason.DISCARDED)
@@ -251,8 +257,7 @@ enum class MiraculousAbility(
                 val amount = nbt.getInt("amount")
                 val scale = 1 - (amount / maxAmount) * 0.65f
 
-                ScaleTypes.WIDTH.getScaleData(player).targetScale = scale
-                ScaleTypes.HEIGHT.getScaleData(player).targetScale = scale
+                scaleEntity(player, scale)
 
                 repeat(amount - 1) {
                     val fakePlayerEntity = MultitudeEntity(player.world, player)
@@ -265,8 +270,7 @@ enum class MiraculousAbility(
                         fakePlayerEntity.setEquipmentDropChance(slot, 0f)
                     }
 
-                    ScaleTypes.WIDTH.getScaleData(fakePlayerEntity).scale = scale
-                    ScaleTypes.HEIGHT.getScaleData(fakePlayerEntity).targetScale = scale
+                    scaleEntity(fakePlayerEntity, scale)
 
                     player.world.spawnEntity(fakePlayerEntity)
 
