@@ -1,9 +1,9 @@
 package com.daimond113.miraculous_miracles.core
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
-import com.daimond113.miraculous_miracles.content.MultitudeEntity
 import com.daimond113.miraculous_miracles.content.PortalItem
-import com.daimond113.miraculous_miracles.states.PlayerState
+import com.daimond113.miraculous_miracles.miraculouses.mouse.MultitudeEntity
+import com.daimond113.miraculous_miracles.state.PlayerState
 import net.minecraft.block.Blocks
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.Entity
@@ -48,7 +48,7 @@ enum class MiraculousAbility(
             nbt.putInt("x", blockPos.x)
             nbt.putInt("y", blockPos.y)
             nbt.putInt("z", blockPos.z)
-            com.daimond113.miraculous_miracles.states.ServerState.getServerState(player.server).markDirty()
+            com.daimond113.miraculous_miracles.state.ServerState.getServerState(player.server).markDirty()
             blockPos
         }
 
@@ -86,7 +86,7 @@ enum class MiraculousAbility(
             nbt.putInt("x", blockPos.x)
             nbt.putInt("y", blockPos.y)
             nbt.putInt("z", blockPos.z)
-            com.daimond113.miraculous_miracles.states.ServerState.getServerState(player.server).markDirty()
+            com.daimond113.miraculous_miracles.state.ServerState.getServerState(player.server).markDirty()
             Triple(blockPos.x, blockPos.y, blockPos.z)
         }
         // TODO: possibly health & food?

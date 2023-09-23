@@ -1,8 +1,8 @@
 package com.daimond113.miraculous_miracles.core
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
-import com.daimond113.miraculous_miracles.states.PlayerState
-import com.daimond113.miraculous_miracles.states.ServerState
+import com.daimond113.miraculous_miracles.state.PlayerState
+import com.daimond113.miraculous_miracles.state.ServerState
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EquipmentSlot

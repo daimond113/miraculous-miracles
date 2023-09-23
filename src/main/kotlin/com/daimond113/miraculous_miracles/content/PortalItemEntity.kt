@@ -2,7 +2,7 @@ package com.daimond113.miraculous_miracles.content
 
 import com.daimond113.miraculous_miracles.MiraculousMiracles
 import com.daimond113.miraculous_miracles.core.MiraculousAbility
-import com.daimond113.miraculous_miracles.states.ServerState
+import com.daimond113.miraculous_miracles.state.ServerState
 import net.minecraft.block.Block
 import net.minecraft.block.enums.DoubleBlockHalf
 import net.minecraft.entity.Entity
@@ -113,7 +113,7 @@ class PortalItemEntity : ThrownItemEntity {
 
         val portalEntity = world.getBlockEntity(pos)
 
-        if (portalEntity is AbstractPortalBlockEntity) {
+        if (portalEntity is PortalBlockEntity) {
             portalEntity.destination = destinationPos
             portalEntity.dimension = dimension
             portalEntity.markDirty()

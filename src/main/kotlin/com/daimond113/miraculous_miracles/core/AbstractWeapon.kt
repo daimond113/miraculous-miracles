@@ -6,7 +6,7 @@ import net.minecraft.item.SwordItem
 import net.minecraft.util.Rarity
 
 abstract class AbstractWeapon(val weaponName: String) : SwordItem(
-    WeaponMaterial,
+    MiraculousWeaponMaterial,
     4,
     -2f,
     itemSettingsOf(maxCount = 1, rarity = Rarity.RARE, group = MiraculousMiracles.ITEM_GROUP)

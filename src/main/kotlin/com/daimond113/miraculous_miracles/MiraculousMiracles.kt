@@ -2,18 +2,34 @@ package com.daimond113.miraculous_miracles
 
 import com.daimond113.miraculous_miracles.content.*
 import com.daimond113.miraculous_miracles.core.*
-import com.daimond113.miraculous_miracles.core.ArmorMaterials
-import com.daimond113.miraculous_miracles.effects.TransformationTimeLeftEffect
-import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwami
-import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwami
-import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwami
-import com.daimond113.miraculous_miracles.kwamis.mouse.MouseKwami
-import com.daimond113.miraculous_miracles.kwamis.rabbit.RabbitKwami
-import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwami
-import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwami
-import com.daimond113.miraculous_miracles.miraculouses.*
-import com.daimond113.miraculous_miracles.states.PlayerState
-import com.daimond113.miraculous_miracles.states.ServerState
+import com.daimond113.miraculous_miracles.miraculouses.bee.BeeMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.bee.SpinningTop
+import com.daimond113.miraculous_miracles.miraculouses.bee.SpinningTopEntity
+import com.daimond113.miraculous_miracles.miraculouses.bee.Venom
+import com.daimond113.miraculous_miracles.miraculouses.bee.kwami.BeeKwami
+import com.daimond113.miraculous_miracles.miraculouses.horse.HorseMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.horse.Horseshoe
+import com.daimond113.miraculous_miracles.miraculouses.horse.kwami.HorseKwami
+import com.daimond113.miraculous_miracles.miraculouses.ladybug.*
+import com.daimond113.miraculous_miracles.miraculouses.ladybug.kwami.LadybugKwami
+import com.daimond113.miraculous_miracles.miraculouses.mouse.MouseMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.mouse.MultitudeEntity
+import com.daimond113.miraculous_miracles.miraculouses.mouse.SkipRope
+import com.daimond113.miraculous_miracles.miraculouses.mouse.kwami.MouseKwami
+import com.daimond113.miraculous_miracles.miraculouses.rabbit.BurrowChunkGenerator
+import com.daimond113.miraculous_miracles.miraculouses.rabbit.RabbitMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.rabbit.Umbrella
+import com.daimond113.miraculous_miracles.miraculouses.rabbit.kwami.RabbitKwami
+import com.daimond113.miraculous_miracles.miraculouses.snake.Lyre
+import com.daimond113.miraculous_miracles.miraculouses.snake.SnakeMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.snake.kwami.SnakeKwami
+import com.daimond113.miraculous_miracles.miraculouses.turtle.ShellterBlock
+import com.daimond113.miraculous_miracles.miraculouses.turtle.ShellterEntity
+import com.daimond113.miraculous_miracles.miraculouses.turtle.Shield
+import com.daimond113.miraculous_miracles.miraculouses.turtle.TurtleMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.turtle.kwami.TurtleKwami
+import com.daimond113.miraculous_miracles.state.PlayerState
+import com.daimond113.miraculous_miracles.state.ServerState
 import net.minecraft.block.Block
 import net.minecraft.block.Material
 import net.minecraft.block.entity.BlockEntityType
@@ -21,7 +37,10 @@ import net.minecraft.entity.*
 import net.minecraft.entity.attribute.DefaultAttributeRegistry
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.*
+import net.minecraft.item.BlockItem
+import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.tag.TagKey
 import net.minecraft.util.Identifier
@@ -63,25 +82,18 @@ object MiraculousMiracles : ModInitializer {
 
     val ITEM_GROUP = itemGroupOf(
         id = Identifier(MOD_ID, "item_group"),
-        iconSupplier = { MIRACULOUSES[MiraculousType.Bee]!!.defaultStack })
+        iconSupplier = { MIRACULOUSES[MiraculousType.Bee]!!.defaultStack }
+    )
 
-    val MIRACULOUSES = run {
-        val map = mutableMapOf<MiraculousType, AbstractMiraculous>()
-
-        for (miraculousInstance in arrayOf(
-            BeeMiraculous(),
-            TurtleMiraculous(),
-            SnakeMiraculous(),
-            LadybugMiraculous(),
-            HorseMiraculous(),
-            RabbitMiraculous(),
-            MouseMiraculous()
-        )) {
-            map[miraculousInstance.miraculousType] = miraculousInstance
-        }
-
-        map
-    }
+    val MIRACULOUSES = arrayOf(
+        BeeMiraculous(),
+        TurtleMiraculous(),
+        SnakeMiraculous(),
+        LadybugMiraculous(),
+        HorseMiraculous(),
+        RabbitMiraculous(),
+        MouseMiraculous()
+    ).associateBy { it.miraculousType }
 
     val KWAMIS = mapOf(
         MiraculousType.Bee to
@@ -100,20 +112,13 @@ object MiraculousMiracles : ModInitializer {
             QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::MouseKwami).setDimensions(KWAMI_DIMENSIONS).build()
     )
 
-    val ARMORS = run {
-        val map = mutableMapOf<MiraculousType, Array<ArmorItem>>()
-
-        for (armorMaterial in ArmorMaterials.values()) {
-            map[armorMaterial.miraculousType] =
-                arrayOf(
-                    GlintlessArmorItem(armorMaterial, EquipmentSlot.FEET, ARMOR_ITEM_SETTINGS),
-                    GlintlessArmorItem(armorMaterial, EquipmentSlot.LEGS, ARMOR_ITEM_SETTINGS),
-                    GlintlessArmorItem(armorMaterial, EquipmentSlot.CHEST, ARMOR_ITEM_SETTINGS),
-                    GlintlessArmorItem(armorMaterial, EquipmentSlot.HEAD, ARMOR_ITEM_SETTINGS),
-                )
-        }
-
-        map
+    val ARMORS = MiraculousArmorMaterials.values().associate {
+        it.miraculousType to arrayOf(
+            MiraculousArmorItem(it, EquipmentSlot.FEET, ARMOR_ITEM_SETTINGS),
+            MiraculousArmorItem(it, EquipmentSlot.LEGS, ARMOR_ITEM_SETTINGS),
+            MiraculousArmorItem(it, EquipmentSlot.CHEST, ARMOR_ITEM_SETTINGS),
+            MiraculousArmorItem(it, EquipmentSlot.HEAD, ARMOR_ITEM_SETTINGS),
+        )
     }
 
     val MIRACULOUS_WEAPONS = mapOf(
@@ -161,10 +166,6 @@ object MiraculousMiracles : ModInitializer {
 
     val TRANSFORMATION_TIME_LEFT_EFFECT = TransformationTimeLeftEffect()
 
-    val MIRACULOUS_ITEM_TAGS = MiraculousType.values().associateWith { miraculousType ->
-        QuiltTagKey.of(Registry.ITEM.key, Identifier(MOD_ID, miraculousType.toString().lowercase()), TagType.NORMAL)
-    }
-
     val SAFELY_REPLACEABLE_TAG: TagKey<Block> =
         QuiltTagKey.of(Registry.BLOCK.key, Identifier(MOD_ID, "safely_replaceable"), TagType.NORMAL)
 
@@ -176,8 +177,6 @@ object MiraculousMiracles : ModInitializer {
 
     val VOYAGE_ITEM = PortalItem(false)
     val VOYAGE_BLOCK = PortalBlock(false)
-    val VOYAGE_BLOCK_ENTITY: BlockEntityType<VoyageBlockEntity> =
-        QuiltBlockEntityTypeBuilder.create(::VoyageBlockEntity, VOYAGE_BLOCK).build()
 
     val VOYAGE_ENTITY: EntityType<PortalItemEntity> = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::PortalItemEntity)
         .setDimensions(
@@ -189,8 +188,6 @@ object MiraculousMiracles : ModInitializer {
 
     val BURROW_ITEM = PortalItem(true)
     val BURROW_BLOCK = PortalBlock(true)
-    val BURROW_BLOCK_ENTITY: BlockEntityType<BurrowBlockEntity> =
-        QuiltBlockEntityTypeBuilder.create(::BurrowBlockEntity, BURROW_BLOCK).build()
 
     val BURROW_ENTITY: EntityType<PortalItemEntity> = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::PortalItemEntity)
         .setDimensions(
@@ -206,9 +203,12 @@ object MiraculousMiracles : ModInitializer {
 
     val DEBOUNCES = mutableMapOf<String, Int>()
 
-    val MULTITUDE_PLAYER_ENTITY = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::MultitudeEntity)
+    val MULTITUDE_PLAYER_ENTITY: EntityType<MultitudeEntity> = QuiltEntityTypeBuilder.create(SpawnGroup.MISC, ::MultitudeEntity)
         .setDimensions(PlayerEntity.STANDING_DIMENSIONS)
         .build()
+
+    val PORTAL_BLOCK_ENTITY: BlockEntityType<PortalBlockEntity> =
+        QuiltBlockEntityTypeBuilder.create(::PortalBlockEntity, BURROW_BLOCK, VOYAGE_BLOCK).build()
 
     override fun onInitialize(mod: ModContainer) {
         Registry.register(Registry.CHUNK_GENERATOR, BURROW_WORLD_KEY.value, BurrowChunkGenerator.CODEC)
@@ -258,12 +258,10 @@ object MiraculousMiracles : ModInitializer {
 
             VOYAGE_ITEM withPath "voyage" toRegistry Registry.ITEM
             VOYAGE_BLOCK withPath "voyage" toRegistry Registry.BLOCK
-            VOYAGE_BLOCK_ENTITY withPath "voyage_block_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
             VOYAGE_ENTITY withPath "voyage_entity" toRegistry Registry.ENTITY_TYPE
 
             BURROW_ITEM withPath "burrow" toRegistry Registry.ITEM
             BURROW_BLOCK withPath "burrow" toRegistry Registry.BLOCK
-            BURROW_BLOCK_ENTITY withPath "burrow_block_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
             BURROW_ENTITY withPath "burrow_entity" toRegistry Registry.ENTITY_TYPE
             BURROW_DIMENSION_BLOCK withPath "burrow_dimension_block" toRegistry Registry.BLOCK
 
@@ -274,6 +272,8 @@ object MiraculousMiracles : ModInitializer {
                 .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 3.0)
                 .build()
             MULTITUDE_PLAYER_ENTITY withPath "multitude_player_entity" toRegistry Registry.ENTITY_TYPE
+
+            PORTAL_BLOCK_ENTITY withPath "portal_block_entity" toRegistry Registry.BLOCK_ENTITY_TYPE
         }
 
         TradeOfferHelper.registerVillagerOffers(

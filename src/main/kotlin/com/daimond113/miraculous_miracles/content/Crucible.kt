@@ -3,7 +3,7 @@ package com.daimond113.miraculous_miracles.content
 import com.daimond113.miraculous_miracles.MiraculousMiracles
 import com.daimond113.miraculous_miracles.core.AbstractMiraculous
 import com.daimond113.miraculous_miracles.core.MiraculousType
-import com.daimond113.miraculous_miracles.states.PlayerState
+import com.daimond113.miraculous_miracles.state.PlayerState
 import net.minecraft.block.*
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityTicker

@@ -67,7 +67,7 @@ class PortalBlock(private val isBurrow: Boolean) :
     }
 
     override fun createBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
-        return if (isBurrow) VoyageBlockEntity(pos, state) else VoyageBlockEntity(pos, state)
+        return PortalBlockEntity(pos, state)
     }
 
     @Deprecated("overriding is fine", ReplaceWith("world.breakBlock(pos, false)"))
@@ -111,7 +111,7 @@ class PortalBlock(private val isBurrow: Boolean) :
             val half = state.get(HALF)
             val downBlockEntity = world.getBlockEntity(if (half == DoubleBlockHalf.UPPER) pos.down() else pos)
 
-            if (downBlockEntity is AbstractPortalBlockEntity) {
+            if (downBlockEntity is PortalBlockEntity) {
                 downBlockEntity.destination?.let { destination ->
                     removeBlockIfSameType(world, state, destination, player)
                     removeBlockIfSameType(world, state, destination.up(), player)
@@ -133,7 +133,7 @@ class PortalBlock(private val isBurrow: Boolean) :
         if (!world.isClient && entity.canUsePortals() && !entity.hasNetherPortalCooldown()) {
             val dataHolderEntity =
                 world.getBlockEntity(if (state.get(HALF) == DoubleBlockHalf.UPPER) pos.down() else pos)
-            if (dataHolderEntity is AbstractPortalBlockEntity) {
+            if (dataHolderEntity is PortalBlockEntity) {
                 dataHolderEntity.destination?.let {
                     val destinationWorld = if (dataHolderEntity.dimension != null)
                         entity.server!!.getWorld(RegistryKey.of(Registry.WORLD_KEY, dataHolderEntity.dimension))

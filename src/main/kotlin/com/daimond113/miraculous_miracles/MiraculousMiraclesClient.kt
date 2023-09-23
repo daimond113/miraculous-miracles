@@ -1,26 +1,26 @@
 package com.daimond113.miraculous_miracles
 
 import com.daimond113.miraculous_miracles.content.CrucibleRenderer
-import com.daimond113.miraculous_miracles.content.MultitudeEntityRenderer
 import com.daimond113.miraculous_miracles.core.AbstractMiraculous
 import com.daimond113.miraculous_miracles.core.MiraculousAbility
 import com.daimond113.miraculous_miracles.core.MiraculousType
 import com.daimond113.miraculous_miracles.core.NetworkMessages
-import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiModel
-import com.daimond113.miraculous_miracles.kwamis.bee.BeeKwamiRenderer
-import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwamiModel
-import com.daimond113.miraculous_miracles.kwamis.horse.HorseKwamiRenderer
-import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiModel
-import com.daimond113.miraculous_miracles.kwamis.ladybug.LadybugKwamiRenderer
-import com.daimond113.miraculous_miracles.kwamis.rabbit.MouseKwamiModel
-import com.daimond113.miraculous_miracles.kwamis.rabbit.MouseKwamiRenderer
-import com.daimond113.miraculous_miracles.kwamis.rabbit.RabbitKwamiModel
-import com.daimond113.miraculous_miracles.kwamis.rabbit.RabbitKwamiRenderer
-import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiModel
-import com.daimond113.miraculous_miracles.kwamis.snake.SnakeKwamiRenderer
-import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiModel
-import com.daimond113.miraculous_miracles.kwamis.turtle.TurtleKwamiRenderer
-import com.daimond113.miraculous_miracles.states.PlayerState
+import com.daimond113.miraculous_miracles.miraculouses.bee.kwami.BeeKwamiModel
+import com.daimond113.miraculous_miracles.miraculouses.bee.kwami.BeeKwamiRenderer
+import com.daimond113.miraculous_miracles.miraculouses.horse.kwami.HorseKwamiModel
+import com.daimond113.miraculous_miracles.miraculouses.horse.kwami.HorseKwamiRenderer
+import com.daimond113.miraculous_miracles.miraculouses.ladybug.kwami.LadybugKwamiModel
+import com.daimond113.miraculous_miracles.miraculouses.ladybug.kwami.LadybugKwamiRenderer
+import com.daimond113.miraculous_miracles.miraculouses.mouse.MultitudeEntityRenderer
+import com.daimond113.miraculous_miracles.miraculouses.rabbit.kwami.MouseKwamiModel
+import com.daimond113.miraculous_miracles.miraculouses.rabbit.kwami.MouseKwamiRenderer
+import com.daimond113.miraculous_miracles.miraculouses.rabbit.kwami.RabbitKwamiModel
+import com.daimond113.miraculous_miracles.miraculouses.rabbit.kwami.RabbitKwamiRenderer
+import com.daimond113.miraculous_miracles.miraculouses.snake.kwami.SnakeKwamiModel
+import com.daimond113.miraculous_miracles.miraculouses.snake.kwami.SnakeKwamiRenderer
+import com.daimond113.miraculous_miracles.miraculouses.turtle.kwami.TurtleKwamiModel
+import com.daimond113.miraculous_miracles.miraculouses.turtle.kwami.TurtleKwamiRenderer
+import com.daimond113.miraculous_miracles.state.PlayerState
 import com.daimond113.miraculous_miracles.ui.*
 import com.mojang.blaze3d.platform.InputUtil
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
@@ -196,12 +196,10 @@ object MiraculousMiraclesClient : ClientModInitializer {
 
             if (detransformKey.isPressed) {
                 if (activeMiraculous.size <= 1) {
-                    val firstMiraculous = activeMiraculous.firstOrNull() ?: return@register
+                    ClientPlayNetworking.send(NetworkMessages.DETRANSFORM, PacketByteBufs.create().apply {
+                        writeInt(activeMiraculous.firstOrNull()?.id ?: return@register)
+                    })
 
-                    val packetByteBuf = PacketByteBufs.create()
-                    packetByteBuf.writeInt(firstMiraculous.id)
-
-                    ClientPlayNetworking.send(NetworkMessages.DETRANSFORM, packetByteBuf)
                     return@register
                 }
 
@@ -215,10 +213,9 @@ object MiraculousMiraclesClient : ClientModInitializer {
                                     miraculousType.toString().lowercase()
                                 }_miraculous"
                             ) {
-                                val packetByteBuf = PacketByteBufs.create()
-                                packetByteBuf.writeInt(miraculousType.id)
-
-                                ClientPlayNetworking.send(NetworkMessages.DETRANSFORM, packetByteBuf)
+                                ClientPlayNetworking.send(NetworkMessages.DETRANSFORM, PacketByteBufs.create().apply {
+                                    writeInt(miraculousType.id)
+                                })
                             }
                         }
                     )
@@ -228,12 +225,10 @@ object MiraculousMiraclesClient : ClientModInitializer {
                     .filter { ability -> ability.withKeyBind && activeMiraculous.contains(ability.miraculousType) }
 
                 if (possibleAbilities.size <= 1) {
-                    val firstAbility = possibleAbilities.firstOrNull() ?: return@register
+                    ClientPlayNetworking.send(NetworkMessages.USE_MIRACULOUS_ABILITY, PacketByteBufs.create().apply {
+                        writeInt(possibleAbilities.firstOrNull()?.id ?: return@register)
+                    })
 
-                    val packetByteBuf = PacketByteBufs.create()
-                    packetByteBuf.writeInt(firstAbility.id)
-
-                    ClientPlayNetworking.send(NetworkMessages.USE_MIRACULOUS_ABILITY, packetByteBuf)
                     return@register
                 }
 
@@ -242,11 +237,12 @@ object MiraculousMiraclesClient : ClientModInitializer {
                         "screen.miraculous_miracles.use_ability",
                         abilityKey,
                         possibleAbilities.map { ability ->
-                            RadialAction("ability.miraculous_miracles.${ability.toString().lowercase()}") {
-                                val packetByteBuf = PacketByteBufs.create()
-                                packetByteBuf.writeInt(ability.id)
-
-                                ClientPlayNetworking.send(NetworkMessages.USE_MIRACULOUS_ABILITY, packetByteBuf)
+                            RadialAction("text.miraculous_miracles.ability.${ability.toString().lowercase()}") {
+                                ClientPlayNetworking.send(
+                                    NetworkMessages.USE_MIRACULOUS_ABILITY,
+                                    PacketByteBufs.create().apply {
+                                        writeInt(ability.id)
+                                    })
                             }
                         }
                     )

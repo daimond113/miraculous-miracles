@@ -1,5 +1,7 @@
 package com.daimond113.miraculous_miracles.content
 
+import com.daimond113.miraculous_miracles.core.MiraculousLinkedItem
+import com.daimond113.miraculous_miracles.core.MiraculousType
 import com.daimond113.miraculous_miracles.core.itemSettingsOf
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
@@ -13,7 +15,9 @@ import net.minecraft.util.TypedActionResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-class PortalItem(private val isBurrow: Boolean) : Item(itemSettingsOf(rarity = Rarity.RARE, fireproof = true)) {
+class PortalItem(private val isBurrow: Boolean) : Item(itemSettingsOf(rarity = Rarity.RARE, fireproof = true)), MiraculousLinkedItem {
+    override val miraculousType = if (isBurrow) MiraculousType.Rabbit else MiraculousType.Horse
+
     companion object {
         private fun getNBT(stack: ItemStack): NbtCompound {
             val nbt = stack.getOrCreateNbt()
