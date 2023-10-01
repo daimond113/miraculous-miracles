@@ -54,5 +54,12 @@ enum class MiraculousType(val id: Int, val foodPredicate: (ItemStack) -> Boolean
             !(itemStack.item.foodComponent?.isMeat ?: true)
         },
         Items.STRING
-    )
+    ),
+    Dog(
+        7,
+        { itemStack ->
+            itemStack.item.foodComponent?.isMeat ?: false
+        },
+        Items.BONE
+    ),
 }

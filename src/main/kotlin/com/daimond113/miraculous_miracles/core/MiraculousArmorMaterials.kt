@@ -15,7 +15,8 @@ enum class MiraculousArmorMaterials(val miraculousType: MiraculousType) : ArmorM
     Ladybug(MiraculousType.Ladybug),
     Horse(MiraculousType.Horse),
     Rabbit(MiraculousType.Rabbit),
-    Mouse(MiraculousType.Mouse);
+    Mouse(MiraculousType.Mouse),
+    Dog(MiraculousType.Dog);
 
     private val baseDurability = arrayOf(13, 15, 16, 11)
     private val protectionValues = arrayOf(3, 6, 8, 3)

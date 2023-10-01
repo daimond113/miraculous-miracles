@@ -34,43 +34,40 @@ abstract class AbstractMiraculous(val miraculousType: MiraculousType, slot: ((It
     ) {
     companion object {
         protected fun getNBT(stack: ItemStack): NbtCompound {
-            val nbt = stack.getOrCreateNbt()
-
-            if (!nbt.contains("isHungry")) {
-                nbt.putBoolean("isHungry", false)
+            return stack.orCreateNbt.apply {
+                if (!contains("isHungry")) {
+                    putBoolean("isHungry", false)
+                }
             }
-
-            return nbt
         }
 
         fun getCharged(stack: ItemStack): Boolean {
-            val nbt = getNBT(stack)
-            return !nbt.contains("kwamiUuid")
+            return !getNBT(stack).contains("kwamiUuid")
         }
 
         fun setNBT(stack: ItemStack, kwamiUuid: Optional<UUID>? = null, kwamiHungry: Boolean? = null) {
-            val nbt = getNBT(stack)
+            stack.nbt = getNBT(stack).apply {
+                if (kwamiUuid != null) {
+                    if (kwamiUuid.isPresent) {
+                        putUuid("kwamiUuid", kwamiUuid.get())
+                    } else {
+                        remove("kwamiUuid")
+                    }
+                }
 
-            if (kwamiUuid != null) {
-                if (kwamiUuid.isPresent) {
-                    nbt.putUuid("kwamiUuid", kwamiUuid.get())
-                } else {
-                    nbt.remove("kwamiUuid")
+                if (kwamiHungry != null) {
+                    putBoolean("isHungry", kwamiHungry)
                 }
             }
-
-            if (kwamiHungry != null) {
-                nbt.putBoolean("isHungry", kwamiHungry)
-            }
-
-            stack.nbt = nbt
         }
 
         fun getOptionalKwamiUuid(stack: ItemStack): UUID? {
-            val nbt = getNBT(stack)
-
-            if (!nbt.contains("kwamiUuid")) return null
-            return nbt.getUuid("kwamiUuid")
+            return getNBT(stack).let {
+                if (it.contains("kwamiUuid"))
+                    it.getUuid("kwamiUuid")
+                else
+                    null
+            }
         }
 
         fun renounceKwami(

@@ -113,5 +113,17 @@
   "item.miraculous_miracles.mouse_legs": "Mouse Leggings",
   "item.miraculous_miracles.mouse_feet": "Mouse Boots",
   "screen.miraculous_miracles.multitude_amount": "Multitude Amount",
-  "entity.miraculous_miracles.multitude_player_entity": "Multitude Player"
+  "entity.miraculous_miracles.multitude_player_entity": "Multitude Player",
+
+  "item.miraculous_miracles.dog_miraculous": "Dog Miraculous",
+  "entity.miraculous_miracles.dog_kwami": "Barkk",
+  "text.miraculous_miracles.dog.transformation": "Barkk, On The Hunt!",
+  "text.miraculous_miracles.dog.detransformation": "Lay Down!",
+  "text.miraculous_miracles.ability.fetch": "Fetch",
+  "text.miraculous_miracles.fetch.shout": "Fetch!",
+  "item.miraculous_miracles.dog_ball": "Ball",
+  "item.miraculous_miracles.dog_head": "Dog Helmet",
+  "item.miraculous_miracles.dog_chest": "Dog Chestplate",
+  "item.miraculous_miracles.dog_legs": "Dog Leggings",
+  "item.miraculous_miracles.dog_feet": "Dog Boots"
 }

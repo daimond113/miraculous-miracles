@@ -7,6 +7,9 @@ import com.daimond113.miraculous_miracles.miraculouses.bee.SpinningTop
 import com.daimond113.miraculous_miracles.miraculouses.bee.SpinningTopEntity
 import com.daimond113.miraculous_miracles.miraculouses.bee.Venom
 import com.daimond113.miraculous_miracles.miraculouses.bee.kwami.BeeKwami
+import com.daimond113.miraculous_miracles.miraculouses.dog.Ball
+import com.daimond113.miraculous_miracles.miraculouses.dog.DogMiraculous
+import com.daimond113.miraculous_miracles.miraculouses.dog.kwami.DogKwami
 import com.daimond113.miraculous_miracles.miraculouses.horse.HorseMiraculous
 import com.daimond113.miraculous_miracles.miraculouses.horse.Horseshoe
 import com.daimond113.miraculous_miracles.miraculouses.horse.kwami.HorseKwami
@@ -92,7 +95,8 @@ object MiraculousMiracles : ModInitializer {
         LadybugMiraculous(),
         HorseMiraculous(),
         RabbitMiraculous(),
-        MouseMiraculous()
+        MouseMiraculous(),
+        DogMiraculous()
     ).associateBy { it.miraculousType }
 
     val KWAMIS = mapOf(
@@ -109,7 +113,9 @@ object MiraculousMiracles : ModInitializer {
         MiraculousType.Rabbit to
             QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::RabbitKwami).setDimensions(KWAMI_DIMENSIONS).build(),
         MiraculousType.Mouse to
-            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::MouseKwami).setDimensions(KWAMI_DIMENSIONS).build()
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::MouseKwami).setDimensions(KWAMI_DIMENSIONS).build(),
+        MiraculousType.Dog to
+            QuiltEntityTypeBuilder.create(SpawnGroup.CREATURE, ::DogKwami).setDimensions(KWAMI_DIMENSIONS).build()
     )
 
     val ARMORS = MiraculousArmorMaterials.values().associate {
@@ -128,7 +134,8 @@ object MiraculousMiracles : ModInitializer {
         MiraculousType.Ladybug to Yoyo(),
         MiraculousType.Horse to Horseshoe(),
         MiraculousType.Rabbit to Umbrella(),
-        MiraculousType.Mouse to SkipRope()
+        MiraculousType.Mouse to SkipRope(),
+        MiraculousType.Dog to Ball()
     )
 
     val BEE_VENOM = Venom()

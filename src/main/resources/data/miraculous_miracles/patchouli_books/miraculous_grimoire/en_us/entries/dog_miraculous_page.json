@@ -1,0 +1,17 @@
+{
+  "name": "Dog Miraculous",
+  "icon": "miraculous_miracles:dog_miraculous",
+  "category": "miraculous_miracles:grimoire_category",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "miraculous_miracles:dog_miraculous",
+      "text": "The miraculous of the Dog represents $(thing)Adoration$().$(br2)It gives it's user the power of $(thing)Fetch$(), which will teleport a previously touched item to the user."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "miraculous_miracles:dog_kwami",
+      "text": "The kwami of the Dog eats any meat."
+    }
+  ]
+}

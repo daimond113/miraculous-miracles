@@ -281,6 +281,18 @@ enum class MiraculousAbility(
             }
         },
         isToggleable = true
+    ),
+
+    Fetch(
+        7,
+        MiraculousType.Dog,
+        { _, _, _, _ ->
+            // noop: implemented with miraculouses.dog.Ball
+            Result.Success
+        },
+        withKeyBind = false,
+        givesMinutesLeft = true,
+        ignoresMinutes = true
     );
 
     enum class Result {

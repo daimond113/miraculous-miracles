@@ -7,6 +7,8 @@ import com.daimond113.miraculous_miracles.core.MiraculousType
 import com.daimond113.miraculous_miracles.core.NetworkMessages
 import com.daimond113.miraculous_miracles.miraculouses.bee.kwami.BeeKwamiModel
 import com.daimond113.miraculous_miracles.miraculouses.bee.kwami.BeeKwamiRenderer
+import com.daimond113.miraculous_miracles.miraculouses.dog.kwami.DogKwamiModel
+import com.daimond113.miraculous_miracles.miraculouses.dog.kwami.DogKwamiRenderer
 import com.daimond113.miraculous_miracles.miraculouses.horse.kwami.HorseKwamiModel
 import com.daimond113.miraculous_miracles.miraculouses.horse.kwami.HorseKwamiRenderer
 import com.daimond113.miraculous_miracles.miraculouses.ladybug.kwami.LadybugKwamiModel
@@ -55,6 +57,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
     val MODEL_HORSE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "horse_kwami"), "main")
     val MODEL_RABBIT_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "rabbit_kwami"), "main")
     val MODEL_MOUSE_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "mouse_kwami"), "main")
+    val MODEL_DOG_KWAMI_LAYER = EntityModelLayer(Identifier(MiraculousMiracles.MOD_ID, "dog_kwami"), "main")
 
     private var activeMiraculous: Set<MiraculousType> = setOf()
     var allDimensions: MutableSet<Identifier> = mutableSetOf()
@@ -150,6 +153,12 @@ object MiraculousMiraclesClient : ClientModInitializer {
             )
         }
 
+        EntityRendererRegistry.register(MiraculousMiracles.KWAMIS[MiraculousType.Dog]) { context ->
+            DogKwamiRenderer(
+                context
+            )
+        }
+
         EntityRendererRegistry.register(MiraculousMiracles.MULTITUDE_PLAYER_ENTITY) { context ->
             MultitudeEntityRenderer(
                 context
@@ -163,6 +172,7 @@ object MiraculousMiraclesClient : ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(MODEL_HORSE_KWAMI_LAYER, HorseKwamiModel::getTexturedModelData)
         EntityModelLayerRegistry.registerModelLayer(MODEL_RABBIT_KWAMI_LAYER, RabbitKwamiModel::getTexturedModelData)
         EntityModelLayerRegistry.registerModelLayer(MODEL_MOUSE_KWAMI_LAYER, MouseKwamiModel::getTexturedModelData)
+        EntityModelLayerRegistry.registerModelLayer(MODEL_DOG_KWAMI_LAYER, DogKwamiModel::getTexturedModelData)
 
         val detransformKey = KeyBindingHelper.registerKeyBinding(
             KeyBind(
